@@ -12,9 +12,10 @@ close all;
 SCALABILITY_MAT_NAME = 'scalability_comptimes.mat';
 LAG_SCALE_LIMIT = 7;
 CCC_SCALE_LIMIT = 20;
-GENZPS_SCALE_LIMIT = 20;
+GENZPS_SCALE_LIMIT = 5;
+NO_OF_DIR_VECS = 24;
 
-run_methods = {'ccc'};
+run_methods = {'set'};%'ccc','genzps'};
 
 run_lag = false;
 run_dp = false;
@@ -40,9 +41,9 @@ else
                     run_lag = true;
                 case 'ccc'
                     run_ccc_set = true;
-                case 'genz'
+                case 'genzps'
                     run_genzps_open_set = true;
-                case 'set';
+                case 'set'
                     run_2d_set = true;
                 otherwise
                     if strcmpi(run_methods{lv}, 'all')
@@ -87,11 +88,13 @@ if run_2d_set
 
     % Lagrangian
     % -------------
+    disp('lag-under');
     opts = SReachSetOptions('term', 'lag-under', ...
         'bound_set_method', 'box', 'err_thresh', 1e-3);
 
     luSet = SReachSet('term', 'lag-under', sys, 0.8, target_tube, opts);
 
+    disp('lag-over');
     opts = SReachSetOptions('term', 'lag-over', ...
         'bound_set_method', 'box', 'err_thresh', 1e-3);
 
@@ -99,6 +102,7 @@ if run_2d_set
 
     % Dynamic Programing
     % ---------------------
+    disp('dynprog');
     [prob_x, cell_of_xvec] = SReachDynProg('term', sys, 0.05, 0.1, target_tube);
 
     dyn_soln_lvl_set = getDynProgLevelSets2D(cell_of_xvec, prob_x, 0.8, ...
@@ -106,22 +110,24 @@ if run_2d_set
 
     % Convex chance-constrained set methods
     % -----------------------------------------
-    theta_vector = linspace(0, 2*pi, 30);
+    theta_vector = linspace(0, 2*pi, NO_OF_DIR_VECS);
     set_of_direction_vectors = [cos(theta_vector); 
                                 sin(theta_vector)];
 
+    disp('chance-open');
     opts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3, ...
-        'set_of_dir_vecs', set_of_direction_vectors);
+        'set_of_dir_vecs', set_of_direction_vectors,...
+        'init_safe_set_affine',Polyhedron());
 
     cccSet = SReachSet('term', 'chance-open', sys, 0.8, target_tube, opts);
 
     % FT with Genz and PatternSearch
     % ----------------------------------------
-    % opts = SReachSetOptions('term', 'genzps-open', 'desired_accuracy', 1e-3, ...
-    %     'set_of_dir_vecs', set_of_direction_vectors);
-
-    % cccSet = SReachSet('term', 'chance-open', sys, 0.8, target_tube, opts);
-
+    disp('genzps-open');
+    opts = SReachSetOptions('term', 'genzps-open', 'desired_accuracy', 1e-3, ...
+        'set_of_dir_vecs', set_of_direction_vectors,...
+        'init_safe_set_affine',Polyhedron(),'verbose',0);
+    genzSet = SReachSet('term', 'genzps-open', sys, 0.8, target_tube, opts);
 
     figure()
     plot(safe_set, 'color', [0.95, 0.95, 0]);
@@ -129,9 +135,14 @@ if run_2d_set
     plot(loSet, 'color', 'r');
     plot(dyn_soln_lvl_set, 'color', 'b');
     plot(cccSet, 'color', [1, 0.6, 0]);
-    plot(luSet, 'color', 'g');
+    plot(genzSet, 'color', [0, 0.6, 1]);
+    plot(luSet, 'color', 'g','alpha',0.5);
     hold off;
-
+    axis square;
+    box on;
+    grid on;
+    xlabel('$x_1$','interpreter','latex');
+    ylabel('$x_2$','interpreter','latex');
     warning('on','all');
 
 end
@@ -232,7 +243,7 @@ end
 if run_ccc_set
     % Convex chance-constrained optimization
 
-    fprintf('Chain of Integrators: Lagrangian approximations\n');
+    fprintf('Chain of Integrators: Convex chance-constrained approximations\n');
     fprintf('-----------------------------------------------\n\n');
 
     warning('off','all');
@@ -253,13 +264,16 @@ if run_ccc_set
             Polyhedron('lb', -0.1, 'ub', 0.1), ...
             RandomVector('Gaussian', mu, sig));
 
-        theta_vector = linspace(0, 2*pi, 30);
+        theta_vector = linspace(0, 2*pi, NO_OF_DIR_VECS);
         set_of_direction_vectors = [cos(theta_vector); 
                                     sin(theta_vector);
                                     zeros(lv-2, length(theta_vector))];
 
+        init_safe_set_affine = Polyhedron('He',...
+            [zeros(lv-2,2) eye(lv-2) zeros(lv-2,1)]);
         opts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3, ...
-            'set_of_dir_vecs', set_of_direction_vectors);
+            'set_of_dir_vecs', set_of_direction_vectors,...
+            'init_safe_set_affine', init_safe_set_affine);
 
         tic;
         cccSet = SReachSet('term', 'chance-open', sys, 0.8, target_tube, opts);
@@ -273,7 +287,6 @@ if run_ccc_set
     save(SCALABILITY_MAT_NAME, 'ccc', '-append');
 
     warning('on', 'all');
-
 end
 
 % -----------------------------------------------------
@@ -283,7 +296,51 @@ end
 % -----------------------------------------------------
 
 if run_genzps_open_set
+    fprintf('Chain of Integrators: Genz-ps approximations\n');
+    fprintf('-----------------------------------------------\n\n');
 
+    warning('off','all');
+
+    genzps_comp_times = zeros(1, GENZPS_SCALE_LIMIT - 1);
+    for lv = 2:GENZPS_SCALE_LIMIT
+        fprintf('    Dimension: %d\n', lv);
+
+        % safe set definition
+        safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
+        % target tube definition
+        target_tube = TargetTube('viability', safe_set, time_horizon);
+
+        mu = zeros(lv, 1);
+        sig = diag([1e-6*ones(1, lv-1), 1e-3]);
+
+        sys = getChainOfIntegLtiSystem(lv, T, ...
+            Polyhedron('lb', -0.1, 'ub', 0.1), ...
+            RandomVector('Gaussian', mu, sig));
+
+        theta_vector = linspace(0, 2*pi, NO_OF_DIR_VECS);
+        set_of_direction_vectors = [cos(theta_vector); 
+                                    sin(theta_vector);
+                                    zeros(lv-2, length(theta_vector))];
+
+        init_safe_set_affine = Polyhedron('He',...
+            [zeros(lv-2,2) eye(lv-2) zeros(lv-2,1)]);
+        opts = SReachSetOptions('term', 'genzps-open',...
+            'desired_accuracy', 1e-3, ...
+            'set_of_dir_vecs', set_of_direction_vectors(:,1:1:end),...
+            'init_safe_set_affine', init_safe_set_affine,'verbose',0);
+
+        tic;
+        genzpsSet = SReachSet('term','genzps-open',sys, 0.8, target_tube, opts);
+        genzps_comp_times(lv-1) = toc;
+
+        fprintf('    Computation Time: %.5f\n', genzps_comp_times(lv-1));
+        fprintf('\n');
+    end
+
+    genzps = struct('comptimes', genzps_comp_times, 'run_time', datestr(now));
+    save(SCALABILITY_MAT_NAME, 'genzps', '-append');
+
+    warning('on', 'all');
 end
 
 % figure();
