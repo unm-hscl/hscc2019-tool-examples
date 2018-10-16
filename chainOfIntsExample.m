@@ -9,7 +9,12 @@
 clearvars;
 close all;
 
-run_methods = {'set'};
+SCALABILITY_MAT_NAME = 'scalability_comptimes.mat';
+LAG_SCALE_LIMIT = 7;
+CCC_SCALE_LIMIT = 20;
+GENZPS_SCALE_LIMIT = 20;
+
+run_methods = {'ccc'};
 
 run_lag = false;
 run_dp = false;
@@ -148,7 +153,8 @@ if run_lag
 
     warning('off','all');
 
-    for lv = 2:7
+    lag_comp_times = zeros(1, LAG_SCALE_LIMIT - 1);
+    for lv = 2:LAG_SCALE_LIMIT
         fprintf('    Dimension: %d\n', lv);
 
         % safe set definition
@@ -165,11 +171,14 @@ if run_lag
 
         tic;
         luSet = SReachSet('term', 'lag-under', sys, 0.8, target_tube, opts);
-        ct = toc;
+        lag_comp_times(lv - 1) = toc;
 
-        fprintf('    Computation Time: %.5f\n', ct);
+        fprintf('    Computation Time: %.5f\n', lag_comp_times(lv-1));
         fprintf('\n');
     end
+
+    lag = struct('comptimes', lag_comp_times, 'run_time', datestr(now));
+    save(SCALABILITY_MAT_NAME, 'lag', '-append');
 
     warning('on', 'all');
 
@@ -221,18 +230,49 @@ end
 % -------------------------------------------------
 
 if run_ccc_set
+    % Convex chance-constrained optimization
+
+    fprintf('Chain of Integrators: Lagrangian approximations\n');
+    fprintf('-----------------------------------------------\n\n');
+
+    warning('off','all');
+
+    ccc_comp_times = zeros(1, CCC_SCALE_LIMIT - 1);
+    for lv = 2:CCC_SCALE_LIMIT
+        fprintf('    Dimension: %d\n', lv);
+
         % safe set definition
-    safe_set = Polyhedron('lb', -1 * ones(1, 2), 'ub', ones(1, 2));
-    % target tube definition
-    target_tube = TargetTube('viability', safe_set, time_horizon);
+        safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
+        % target tube definition
+        target_tube = TargetTube('viability', safe_set, time_horizon);
 
-    sys = getChainOfIntegLtiSystem(2, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
-        RandomVector('Gaussian', zeros(2,1), 0.001*eye(2)));
+        mu = zeros(lv, 1);
+        sig = diag([1e-6*ones(1, lv-1), 1e-3]);
 
-    % Convex chance-constrained set methods
-    opts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3);
+        sys = getChainOfIntegLtiSystem(lv, T, ...
+            Polyhedron('lb', -0.1, 'ub', 0.1), ...
+            RandomVector('Gaussian', mu, sig));
 
-    cccSet = SReachSet('term', 'chance-open', sys, 0.8, target_tube, opts);
+        theta_vector = linspace(0, 2*pi, 30);
+        set_of_direction_vectors = [cos(theta_vector); 
+                                    sin(theta_vector);
+                                    zeros(lv-2, length(theta_vector))];
+
+        opts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3, ...
+            'set_of_dir_vecs', set_of_direction_vectors);
+
+        tic;
+        cccSet = SReachSet('term', 'chance-open', sys, 0.8, target_tube, opts);
+        ccc_comp_times(lv-1) = toc;
+
+        fprintf('    Computation Time: %.5f\n', ccc_comp_times(lv-1));
+        fprintf('\n');
+    end
+
+    ccc = struct('comptimes', ccc_comp_times, 'run_time', datestr(now));
+    save(SCALABILITY_MAT_NAME, 'ccc', '-append');
+
+    warning('on', 'all');
 
 end
 
