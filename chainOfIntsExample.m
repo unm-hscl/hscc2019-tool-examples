@@ -12,10 +12,10 @@ close all;
 SCALABILITY_MAT_NAME = 'scalability_comptimes.mat';
 LAG_SCALE_LIMIT = 7;
 CCC_SCALE_LIMIT = 20;
-GENZPS_SCALE_LIMIT = 5;
+GENZPS_SCALE_LIMIT = 20;
 NO_OF_DIR_VECS = 24;
 
-run_methods = {'set'};%'ccc','genzps'};
+run_methods = {'ccc', 'genzps'};%'ccc','genzps'};
 
 run_lag = false;
 run_dp = false;
@@ -353,7 +353,7 @@ if run_genzps_open_set
         opts = SReachSetOptions('term', 'genzps-open',...
             'desired_accuracy', 1e-3, ...
             'set_of_dir_vecs', set_of_direction_vectors(:,1:1:end),...
-            'init_safe_set_affine', init_safe_set_affine,'verbose',0);
+            'init_safe_set_affine', init_safe_set_affine,'verbose',1);
 
         tic;
         genzpsSet = SReachSet('term','genzps-open',sys, 0.8, target_tube, opts);

@@ -48,7 +48,7 @@ pause(2);
 hf.Units = 'points';
 hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
-hf.Position(4) = 4;
+hf.Position(4) = 3.2;
 hf.Position(1) = 3;
 hf.Position(2) = 3;
 
@@ -65,7 +65,7 @@ ha.YLabel.FontSize = FONT_SIZE;
 ha.Units = 'inches';
 ha.Position(4) = 2;
 ha.Units = 'normalized';
-ha.Position(2) = 0.45;
+ha.Position(2) = 0.34;
 ha.YLim = [-1.5, 0.1];
 ha.XLim = [-1.5, 1.5];
 
@@ -94,6 +94,10 @@ for lv = 1:length(ha.Children)
             ha.Children(lv).FaceColor = [0, 0, 0];
         case 'safe set'
             ha.Children(lv).FaceColor = [0.95, 0.95, 0];
+
+            ha.Children(lv).Vertices = [1.5, -1.5, 0; ...
+                0, -0, 0; ...
+               -1.5, -1.5, 0];
         case 'chance constraint'
             ha.Children(lv).FaceColor = [1, 0.6, 0];
         case 'bad trajectory'
@@ -107,28 +111,27 @@ for lv = 1:length(ha.Children)
         otherwise
             % do nothing
     end
-        
-
 end
+
 
 % annotations galore!!!
 % Safe set
 % -----------------------
 % the box
-an = annotation(hf, 'textbox');
-an.String = 'Sets';
-an.Interpreter = 'latex';
-an.FontSize = FONT_SIZE;
-an.Position(1) = 0.05;
-an.Position(2) = ha.Position(2) - 0.1;
-an.Position(4) = 0.05;
-an.Position(3) = 0.3;
-an.LineStyle = 'none';
-pos = an.Position;
+% an = annotation(hf, 'textbox');
+% an.String = 'Sets';
+% an.Interpreter = 'latex';
+% an.FontSize = FONT_SIZE;
+% an.Position(1) = 0.05;
+% an.Position(2) = ha.Position(2) - 0.15;
+% an.Position(4) = 0.05;
+% an.Position(3) = 0.3;
+% an.LineStyle = 'none';
+% pos = an.Position;
 
 an = annotation(hf, 'rectangle');
-an.Position(1) = pos(1) + 0.05;
-an.Position(2) = pos(2) - 0.04;
+an.Position(1) = 0.1;
+an.Position(2) = ha.Position(2) - 0.18;
 an.Units = 'inches';
 an.Position(3) = 0.1;
 an.Position(4) = 0.1;
@@ -137,8 +140,8 @@ an.FaceColor = [0.95, 0.95, 0];
 
 % Text
 txt = annotation(hf, 'textbox');
-txt.Position(1) = an.Position(1) + 0.05;
-txt.Position(2) = an.Position(2) - 0.013;
+txt.Position(1) = an.Position(1) + 0.04;
+txt.Position(2) = an.Position(2) - 0.002;
 txt.Position(3) = 0.3;
 txt.Position(4) = 0.05;
 txt.String = 'Safe Set';
@@ -200,8 +203,8 @@ for lv = 1:length(strs)
 
     % Text
     txt = annotation(hf, 'textbox');
-    txt.Position(1) = an.Position(1) + 0.05;
-    txt.Position(2) = an.Position(2) - 0.013;
+    txt.Position(1) = an.Position(1) + 0.04;
+    txt.Position(2) = an.Position(2) - 0.002;
     txt.Position(3) = 0.3;
     txt.Position(4) = 0.05;
     switch(strs{lv})
@@ -223,76 +226,76 @@ for lv = 1:length(strs)
     txt.FontSize = FONT_SIZE;
 end
 
-pos = an.Position;
+% pos = an.Position;
 
-an = annotation(hf, 'textbox');
-an.String = 'Trajectories';
-an.Interpreter = 'latex';
-an.FontSize = FONT_SIZE;
-an.Position(1) = 0.05;
-an.Position(2) = pos(2) - 0.08;
-an.Position(4) = 0.05;
-an.Position(3) = 0.3;
-an.LineStyle = 'none';
-pos = an.Position;
+% an = annotation(hf, 'textbox');
+% an.String = 'Trajectories';
+% an.Interpreter = 'latex';
+% an.FontSize = FONT_SIZE;
+% an.Position(1) = 0.05;
+% an.Position(2) = pos(2) - 0.08;
+% an.Position(4) = 0.05;
+% an.Position(3) = 0.3;
+% an.LineStyle = 'none';
+% pos = an.Position;
 
-ax = axes(hf);
-ax.Position(1) = 0.1;
-ax.Position(2) = pos(2) - 0.027;
-ax.Position(3) = 0.1;
-ax.Position(4) = 0;
-plot(ax, [0,1], [0,0], 'LineStyle', '-', ...
-    'LineWidth', 1, ...
-    'Color', [0, 1, 0]);
-hold on;
-scatter(ax, 0.5, 0, 'Marker', '^', ...
-    'MarkerFaceColor', [0, 1, 0], ...
-    'MarkerEdgeColor', [0, 1, 0]);
-hold off;
-ax.XTickLabel = [];
-ax.YTickLabel = [];
-ax.XLim = [0, 1];
-ax.YLim = [-0.1, 0.1];
+% ax = axes(hf);
+% ax.Position(1) = 0.1;
+% ax.Position(2) = pos(2) - 0.027;
+% ax.Position(3) = 0.1;
+% ax.Position(4) = 0;
+% plot(ax, [0,1], [0,0], 'LineStyle', '-', ...
+%     'LineWidth', 1, ...
+%     'Color', [0, 1, 0]);
+% hold on;
+% scatter(ax, 0.5, 0, 'Marker', '^', ...
+%     'MarkerFaceColor', [0, 1, 0], ...
+%     'MarkerEdgeColor', [0, 1, 0]);
+% hold off;
+% ax.XTickLabel = [];
+% ax.YTickLabel = [];
+% ax.XLim = [0, 1];
+% ax.YLim = [-0.1, 0.1];
 
-txt = annotation(hf, 'textbox');
-txt.String = 'Good Trajectory';
-txt.Position(1) = ax.Position(1) + ax.Position(3) + 0.02;
-txt.Position(2) = ax.Position(2) - 0.022;
-txt.Position(3) = 0.3;
-txt.Position(4) = 0.05;
-txt.Interpreter = 'latex';
-txt.LineStyle = 'none';
-txt.FontSize = FONT_SIZE;
+% txt = annotation(hf, 'textbox');
+% txt.String = 'Good Trajectory';
+% txt.Position(1) = ax.Position(1) + ax.Position(3) + 0.02;
+% txt.Position(2) = ax.Position(2) - 0.022;
+% txt.Position(3) = 0.3;
+% txt.Position(4) = 0.05;
+% txt.Interpreter = 'latex';
+% txt.LineStyle = 'none';
+% txt.FontSize = FONT_SIZE;
 
-pos = ax.Position;
-ax = axes(hf);
-ax.Position(1) = 0.1;
-ax.Position(2) = pos(2) - 0.05;
-ax.Position(3) = 0.1;
-ax.Position(4) = 0;
-plot(ax, [0,1], [0,0], 'LineStyle', '-', ...
-    'LineWidth', 1, ...
-    'Color', [1, 0, 0]);
-hold on;
-scatter(ax, 0.5, 0, 'Marker', 'x', ...
-    'MarkerFaceColor', [1, 0, 0], ...
-    'MarkerEdgeColor', [1, 0, 0], ...
-    'LineWidth', 2);
-hold off;
-ax.XTickLabel = [];
-ax.YTickLabel = [];
-ax.XLim = [0, 1];
-ax.YLim = [-0.1, 0.1];
+% pos = ax.Position;
+% ax = axes(hf);
+% ax.Position(1) = 0.1;
+% ax.Position(2) = pos(2) - 0.05;
+% ax.Position(3) = 0.1;
+% ax.Position(4) = 0;
+% plot(ax, [0,1], [0,0], 'LineStyle', '-', ...
+%     'LineWidth', 1, ...
+%     'Color', [1, 0, 0]);
+% hold on;
+% scatter(ax, 0.5, 0, 'Marker', 'x', ...
+%     'MarkerFaceColor', [1, 0, 0], ...
+%     'MarkerEdgeColor', [1, 0, 0], ...
+%     'LineWidth', 2);
+% hold off;
+% ax.XTickLabel = [];
+% ax.YTickLabel = [];
+% ax.XLim = [0, 1];
+% ax.YLim = [-0.1, 0.1];
 
-txt = annotation(hf, 'textbox');
-txt.String = 'Bad Trajectory';
-txt.Position(1) = ax.Position(1) + ax.Position(3) + 0.02;
-txt.Position(2) = ax.Position(2) - 0.022;
-txt.Position(3) = 0.3;
-txt.Position(4) = 0.05;
-txt.Interpreter = 'latex';
-txt.LineStyle = 'none';
-txt.FontSize = FONT_SIZE;
+% txt = annotation(hf, 'textbox');
+% txt.String = 'Bad Trajectory';
+% txt.Position(1) = ax.Position(1) + ax.Position(3) + 0.02;
+% txt.Position(2) = ax.Position(2) - 0.022;
+% txt.Position(3) = 0.3;
+% txt.Position(4) = 0.05;
+% txt.Interpreter = 'latex';
+% txt.LineStyle = 'none';
+% txt.FontSize = FONT_SIZE;
 
 print(hf, '-r300', '-dpng', 'exampleFigs/pngs/cwh-example.png');
 

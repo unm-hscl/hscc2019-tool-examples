@@ -24,9 +24,18 @@ hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
 hf.Position(4) = 1.5;
 
+markstyle = {'^', 'x', 'o'};
+colors = {[0, 0, 1], [0, 0, 0], [1, 0, 0]};
 for lv = 1:length(methods)
     ndims = length(cmptimes.(methods{lv}).comptimes);
-    semilogy(2:ndims+1, cmptimes.(methods{lv}).comptimes);
+    hp = plot(2:ndims+1, cmptimes.(methods{lv}).comptimes, ...
+        'Marker', markstyle{lv}, 'MarkerSize', 5, ...
+        'Color', colors{lv}, 'MarkerFaceColor', colors{lv}, ...
+        'MarkerEdgeColor', colors{lv});
+    
+    if strcmp(hp.Marker, 'x')
+        hp.MarkerSize = 6;
+    end
     
     % hold on / off
     if lv == 1
@@ -37,6 +46,7 @@ for lv = 1:length(methods)
 end
 
 ha = gca;
+ha.YScale = 'log';
 ha.YLim = [10e-3, 10e4];
 grid on;
 ha.TickLabelInterpreter = 'latex';

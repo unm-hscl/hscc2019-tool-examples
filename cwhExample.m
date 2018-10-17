@@ -54,47 +54,47 @@ end
 % ------------------------------------------
 
 % example parameters
-time_horizon = 3;                                             % Stay within a line of sight cone for 4 time steps and 
+time_horizon = 5;                                             % Stay within a line of sight cone for 4 time steps and 
                                                             % reach the target at t=5% Safe Set --- LoS cone
-%% Safe set definition --- LoS cone |x|<=y and y\in[0,ymax] and |vx|<=vxmax and |vy|<=vymax
-zmax = 5;
-vmax = 0.5 * ones(1, 3);
-A_safe_set = [ 1, 1,  0,  0,  0,  0;           
-              -1, 1,  0,  0,  0,  0; 
-               0, 0,  1,  0,  0,  0;
-               0, 0, -1,  0,  0,  0;
-               0, 0,  0,  1,  0,  0;
-               0, 0,  0, -1,  0,  0;
-               0, 0,  0,  0,  1,  0;
-               0, 0,  0,  0, -1,  0;
-               0, 0,  0,  0,  0,  1;
-               0, 0,  0,  0,  0, -1];
-b_safe_set = [0;
-              0;
-              zmax;
-              zmax;
-              vmax(1);
-              vmax(1);
-              vmax(2);
-              vmax(2);
-              vmax(3);
-              vmax(3);];
 
-safe_set = Polyhedron(A_safe_set, b_safe_set);
-%% Target set --- Box [-0.1,0.1]x[-0.1,0]x[-0.01,0.01]x[-0.01,0.01]
-target_set = Polyhedron('lb', [-0.1; -0.1; -0.1; -0.01; -0.01; -0.01],...
-                        'ub', [0.1; 0; 0.1; 0.01; 0.01; 0.01]);
+% maximum input thrust
+umax = 0.1;
+
+% Cwh system
+sys = getCwhLtiSystem(4, Polyhedron('lb', -umax * ones(1, 2), ...
+    'ub', umax * ones(1, 2)), StochasticDisturbance('Gaussian', ...
+        zeros(4,1), diag([1e-4, 1e-4, 5e-8, 5e-8])));
+    
+% Safe Set --- LoS cone K
+% |x|<=y and y\in[0,ymax] and |vx|<=vxmax and |vy|<=vymax
+ymax=2;
+vxmax=0.5;
+vymax=0.5;
+Ap = [1, 1, 0, 0;           
+     -1, 1, 0, 0; 
+      0, -1, 0, 0;
+      0, 0, 1,0;
+      0, 0,-1,0;
+      0, 0, 0,1;
+      0, 0, 0,-1];
+bp = [0;
+      0;
+      ymax;
+      vxmax;
+      vxmax;
+      vymax;
+      vymax];
+safe_set = Polyhedron(Ap, bp);
+minHRep(safe_set);                         % Get vertex representation of K
+minVRep(safe_set);                         % Get vertex representation of K
+
+% final target
+target_set = Polyhedron('lb', [-0.1; -0.1; -0.01; -0.01], ...
+    'ub', [0.1; 0; 0.01; 0.01]);
+minVRep(target_set);                 % Get vertex representation of K
+
 %% Target tube
 target_tube = TargetTube('reach-avoid', safe_set, target_set, time_horizon);
-
-umax = 0.1;
-mean_disturbance = zeros(6,1);
-covariance_disturbance = diag([1e-4, 1e-4, 1e-4, 5e-8, 5e-8, 5e-8]);
-
-
-sys = getCwhLtiSystem(6,...
-    Polyhedron('lb', -umax*ones(3,1), 'ub',  umax*ones(3,1)), ...
-    RandomVector('Gaussian', mean_disturbance, covariance_disturbance));
 
 
 % -----------------------------------------
@@ -110,12 +110,6 @@ if run_lag
     % computation. Otherwise the 6-d system is at the edge of Lagrangian 
     % methods ability to compute because of the vertex-fact problem.
 
-    sys4d = LtiSystem('StateMatrix', [], ...
-        'InputMatrix', [], ...
-        'InputSpace', Polyhedron('lb', -umax*ones(2,1), 'ub',  umax*ones(2,1))
-        'DisturbanceMatrix', eye(4), ...
-        'Disturbance', RandomVector('Gaussian', zeros(4, 1), ...
-            diag([1e-4, 1e-4, 5e-8, 5e-8])));
 
     fprintf('Spacecraft Rendezvous Docking: Lagrangian approximations\n');
     fprintf('----------------------------------------------------------\n\n');
