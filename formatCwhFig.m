@@ -120,7 +120,7 @@ an.String = 'Sets';
 an.Interpreter = 'latex';
 an.FontSize = FONT_SIZE;
 an.Position(1) = 0.05;
-an.Position(2) = ha.Position(2) - 0.13;
+an.Position(2) = ha.Position(2) - 0.1;
 an.Position(4) = 0.05;
 an.Position(3) = 0.3;
 an.LineStyle = 'none';
@@ -146,8 +146,8 @@ txt.Interpreter = 'latex';
 txt.LineStyle = 'none';
 txt.FontSize = FONT_SIZE;
 
-strs = {'lagrangian', 'ccc', 'ftgenz'};
-set_colors = {[0, 0.9, 0], [1, 0.6, 0], [0, 0.6, 1]};
+strs = {'target', 'lagrangian', 'ccc', 'ftgenz'};
+set_colors = {[0, 0, 0], [0, 0.9, 0], [1, 0.6, 0], [0, 0.6, 1]};
 lefttab = an.Position(1);
 righttab = 0.5;
 for lv = 1:length(strs)
@@ -213,6 +213,8 @@ for lv = 1:length(strs)
             txt.String = '\texttt{chance-open}';
         case 'ftgenz'
             txt.String = '\texttt{genzps-open}';
+        case 'target'
+            txt.String = 'Target Set';
         otherwise
             % do nothing
     end 
@@ -220,6 +222,8 @@ for lv = 1:length(strs)
     txt.LineStyle = 'none';
     txt.FontSize = FONT_SIZE;
 end
+
+pos = an.Position;
 
 an = annotation(hf, 'textbox');
 an.String = 'Trajectories';
@@ -232,37 +236,58 @@ an.Position(3) = 0.3;
 an.LineStyle = 'none';
 pos = an.Position;
 
-an = annotation(hf, 'line');
-an.Position(1) = 0.1;
-an.Position(2) = pos(2) - 0.03;
-an.Position(3) = 0.1;
-an.Position(4) = 0;
-an.Units = 'normalized';
-an.Color = [0, 1, 0];
+ax = axes(hf);
+ax.Position(1) = 0.1;
+ax.Position(2) = pos(2) - 0.027;
+ax.Position(3) = 0.1;
+ax.Position(4) = 0;
+plot(ax, [0,1], [0,0], 'LineStyle', '-', ...
+    'LineWidth', 1, ...
+    'Color', [0, 1, 0]);
+hold on;
+scatter(ax, 0.5, 0, 'Marker', '^', ...
+    'MarkerFaceColor', [0, 1, 0], ...
+    'MarkerEdgeColor', [0, 1, 0]);
+hold off;
+ax.XTickLabel = [];
+ax.YTickLabel = [];
+ax.XLim = [0, 1];
+ax.YLim = [-0.1, 0.1];
 
 txt = annotation(hf, 'textbox');
 txt.String = 'Good Trajectory';
-txt.Position(1) = an.Position(1) + an.Position(3) + 0.02;
-txt.Position(2) = an.Position(2) - 0.023;
+txt.Position(1) = ax.Position(1) + ax.Position(3) + 0.02;
+txt.Position(2) = ax.Position(2) - 0.022;
 txt.Position(3) = 0.3;
 txt.Position(4) = 0.05;
 txt.Interpreter = 'latex';
 txt.LineStyle = 'none';
 txt.FontSize = FONT_SIZE;
 
-pos = an.Position;
-an = annotation(hf, 'line');
-an.Position(1) = 0.1;
-an.Position(2) = pos(2) - 0.05;
-an.Position(3) = 0.1;
-an.Position(4) = 0;
-an.Units = 'normalized';
-an.Color = [1, 0, 0];
+pos = ax.Position;
+ax = axes(hf);
+ax.Position(1) = 0.1;
+ax.Position(2) = pos(2) - 0.05;
+ax.Position(3) = 0.1;
+ax.Position(4) = 0;
+plot(ax, [0,1], [0,0], 'LineStyle', '-', ...
+    'LineWidth', 1, ...
+    'Color', [1, 0, 0]);
+hold on;
+scatter(ax, 0.5, 0, 'Marker', 'x', ...
+    'MarkerFaceColor', [1, 0, 0], ...
+    'MarkerEdgeColor', [1, 0, 0], ...
+    'LineWidth', 2);
+hold off;
+ax.XTickLabel = [];
+ax.YTickLabel = [];
+ax.XLim = [0, 1];
+ax.YLim = [-0.1, 0.1];
 
 txt = annotation(hf, 'textbox');
 txt.String = 'Bad Trajectory';
-txt.Position(1) = an.Position(1) + an.Position(3) + 0.02;
-txt.Position(2) = an.Position(2) - 0.023;
+txt.Position(1) = ax.Position(1) + ax.Position(3) + 0.02;
+txt.Position(2) = ax.Position(2) - 0.022;
 txt.Position(3) = 0.3;
 txt.Position(4) = 0.05;
 txt.Interpreter = 'latex';
