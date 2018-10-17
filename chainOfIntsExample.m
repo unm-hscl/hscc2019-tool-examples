@@ -76,6 +76,9 @@ time_horizon = 5;
 if run_2d_set
     % Plot 2d double integrator set comparison methods
 
+    fprintf('Double Integrator Set Comparison\n');
+    fprintf('----------------------------------------\n\n');
+
     warning('off','all');
 
     % safe set definition
@@ -86,24 +89,38 @@ if run_2d_set
     sys = getChainOfIntegLtiSystem(2, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
         RandomVector('Gaussian', zeros(2, 1), diag([1e-6, 1e-3])));
 
+    fprintf('    Computation times\n');
+    fprintf('    -----------------\n');
+
     % Lagrangian
     % -------------
-    disp('lag-under');
+    fprintf('    Lagrangian Underapproximation: ');
     opts = SReachSetOptions('term', 'lag-under', ...
         'bound_set_method', 'box', 'err_thresh', 1e-3);
 
+    tic;
     luSet = SReachSet('term', 'lag-under', sys, 0.8, target_tube, opts);
+    ct = toc;
+    fprintf('%.5f\n', ct);
 
-    disp('lag-over');
+    fprintf('    Lagrangian Overapproximation: ');
     opts = SReachSetOptions('term', 'lag-over', ...
         'bound_set_method', 'box', 'err_thresh', 1e-3);
 
+    tic;
     loSet = SReachSet('term', 'lag-over', sys, 0.8, target_tube, opts);
+    ct = toc;
+    fprintf('%.5f\n', ct);
 
     % Dynamic Programing
     % ---------------------
-    disp('dynprog');
-    [prob_x, cell_of_xvec] = SReachDynProg('term', sys, 0.05, 0.1, target_tube);
+    fprintf('    Dynamic Programming: ');
+    tic;
+    [prob_x, cell_of_xvec] = SReachDynProg('term', sys, 0.02, 0.01, target_tube);
+    ct = toc;
+    fprintf('%.5f\n', ct)
+    fprintf('        --> x_inc = 0.02\n');
+    fprintf('        --> u_inc = 0.01\n');
 
     dyn_soln_lvl_set = getDynProgLevelSets2D(cell_of_xvec, prob_x, 0.8, ...
         target_tube);
@@ -114,20 +131,28 @@ if run_2d_set
     set_of_direction_vectors = [cos(theta_vector); 
                                 sin(theta_vector)];
 
-    disp('chance-open');
+    fprintf('    Convex Chance-Constrained: ');
     opts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3, ...
         'set_of_dir_vecs', set_of_direction_vectors,...
         'init_safe_set_affine',Polyhedron());
 
+    tic;
     cccSet = SReachSet('term', 'chance-open', sys, 0.8, target_tube, opts);
+    ct = toc;
+    fprintf('%.5f\n', ct);
 
     % FT with Genz and PatternSearch
     % ----------------------------------------
-    disp('genzps-open');
+    fprintf('    Fourier Transform Genz PatternSearch: ');
     opts = SReachSetOptions('term', 'genzps-open', 'desired_accuracy', 1e-3, ...
         'set_of_dir_vecs', set_of_direction_vectors,...
         'init_safe_set_affine',Polyhedron(),'verbose',0);
+
+    tic;
     genzSet = SReachSet('term', 'genzps-open', sys, 0.8, target_tube, opts);
+    ct = toc;
+    fprintf('%.5f\n', ct);
+    fprintf('\n');
 
     figure()
     plot(safe_set, 'color', [0.95, 0.95, 0]);
@@ -143,6 +168,7 @@ if run_2d_set
     grid on;
     xlabel('$x_1$','interpreter','latex');
     ylabel('$x_2$','interpreter','latex');
+
     warning('on','all');
 
 end
