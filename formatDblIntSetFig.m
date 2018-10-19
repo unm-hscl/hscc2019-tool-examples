@@ -32,7 +32,7 @@ patches = ha.Children;
 hf.Units = 'points';
 hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
-hf.Position(4) = 4;
+hf.Position(4) = 3.4;
 
 % Axes
 ha.Position(3) = 0.6;
@@ -40,7 +40,7 @@ ha.Units = 'inches';
 ha.Position(4) = ha.Position(3);
 ha.Units = 'normalized';
 ha.Position(1) = 0.23;
-ha.Position(2) = 0.44;
+ha.Position(2) = 0.37;
 ha.XLim = [-1, 1];
 ha.YLim = [-1, 1];
 
@@ -55,7 +55,7 @@ ha.YLabel.FontSize = FONT_SIZE;
 % the box
 an = annotation(hf, 'rectangle');
 an.Position(1) = 0.1;
-an.Position(2) = ha.Position(2) - 0.13;
+an.Position(2) = ha.Position(2) - 0.15;
 an.Units = 'inches';
 an.Position(3) = 0.1;
 an.Position(4) = 0.1;
@@ -64,8 +64,8 @@ an.FaceColor = patches(6).FaceColor;
 
 % Text
 txt = annotation(hf, 'textbox');
-txt.Position(1) = an.Position(1) + 0.05;
-txt.Position(2) = an.Position(2) - 0.013;
+txt.Position(1) = an.Position(1) + 0.03;
+txt.Position(2) = an.Position(2) - 0.005;
 txt.Position(3) = 0.3;
 txt.Position(4) = 0.05;
 txt.String = 'Safe Set';
@@ -91,7 +91,7 @@ for lv = 1:length(strs)
     pos = an.Position;
     an = annotation(hf, 'rectangle');
     an.Position(1) = pos(1);
-    an.Position(2) = pos(2) - 0.05;
+    an.Position(2) = pos(2) - 0.04;
     an.Position(3) = pos(3);
     an.Position(4) = pos(4);
     an.Units = 'normalized';
@@ -101,7 +101,7 @@ for lv = 1:length(strs)
         an.FaceColor = patches(6-lv+1).FaceColor;
         an = annotation(hf, 'rectangle');
         an.Position(1) = pos(1);
-        an.Position(2) = pos(2) - 0.05;
+        an.Position(2) = pos(2) - 0.04;
         an.Position(3) = pos(3);
         an.Position(4) = pos(4);
         an.Units = 'normalized';
@@ -111,8 +111,8 @@ for lv = 1:length(strs)
 
     % Text
     txt = annotation(hf, 'textbox');
-    txt.Position(1) = an.Position(1) + 0.05;
-    txt.Position(2) = an.Position(2) - 0.013;
+    txt.Position(1) = an.Position(1) + 0.03;
+    txt.Position(2) = an.Position(2) - 0.005;
     txt.Position(3) = 0.3;
     txt.Position(4) = 0.05;
     switch(strs{lv})
