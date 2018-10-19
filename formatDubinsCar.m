@@ -101,12 +101,12 @@ pos = an.Position;
 
 for lv = 1:5
     antemp = annotation(hf, 'rectangle');
-    antemp.Position(1) = an.Position(1);
-    antemp.Position(2) = an.Position(2) - 0.05;
-    antemp.Units = 'inches';
-    antemp.Position(3) = pos(3)/1;
-    antemp.Position(4) = pos(4)/1;
-    antemp.Units = 'normalized';
+    antemp.Position(1) = pos(1) + 0.0008;
+    antemp.Position(2) = pos(2) - 0.005;
+    % antemp.Units = 'inches';
+    antemp.Position(3) = pos(3)/1.08;
+    antemp.Position(4) = pos(4)/1.08;
+    % antemp.Units = 'normalized';
     antemp.FaceColor = 'y';
 
     antemp.LineStyle = '-';
@@ -116,6 +116,16 @@ for lv = 1:5
 
     pos = antemp.Position;
 end
+
+an = annotation(hf, 'rectangle');
+an.Position(1) = hl.Position(1) + 0.062;
+an.Position(2) = hl.Position(2) - 0.05;
+an.Units = 'inches';
+an.Position(3) = 0.1;
+an.Position(4) = 0.1;
+an.Units = 'normalized';
+an.FaceColor = 'y';
+pos = an.Position;
 
 txt = annotation(hf, 'textbox');
 txt.LineStyle = 'none';
@@ -127,4 +137,4 @@ txt.String = 'Target Tube';
 txt.Interpreter = 'latex';
 txt.FontSize = FONT_SIZE;
 
-% print(hf, '-r300', '-dpng', 'exampleFigs/pngs/dubinscar-example.png');
+print(hf, '-r300', '-dpng', 'exampleFigs/pngs/dubinscar-example.png');

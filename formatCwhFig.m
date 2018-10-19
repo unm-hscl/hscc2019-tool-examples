@@ -129,6 +129,8 @@ end
 % an.LineStyle = 'none';
 % pos = an.Position;
 
+delete(ha.Children(9));
+
 an = annotation(hf, 'rectangle');
 an.Position(1) = 0.1;
 an.Position(2) = ha.Position(2) - 0.18;
@@ -149,8 +151,8 @@ txt.Interpreter = 'latex';
 txt.LineStyle = 'none';
 txt.FontSize = FONT_SIZE;
 
-strs = {'target', 'lagrangian', 'ccc', 'ftgenz'};
-set_colors = {[0, 0, 0], [0, 0.9, 0], [1, 0.6, 0], [0, 0.6, 1]};
+strs = {'target', 'ccc', 'ftgenz'};
+set_colors = {[0, 0, 0], [1, 0.6, 0], [0, 0.6, 1]};
 lefttab = an.Position(1);
 righttab = 0.5;
 for lv = 1:length(strs)

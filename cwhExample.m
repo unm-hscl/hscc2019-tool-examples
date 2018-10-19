@@ -119,6 +119,9 @@ if run_lag
     opts = SReachSetOptions('term', 'lag-under', ...
             'bound_set_method', 'box', 'err_thresh', 1e-3);
 
+    bounded_set = SReachSetLagBset(sys.dist, 0.8^(1/time_horizon), ...
+        options);
+    
     tic;
     luSet = SReachSet('term', 'lag-under', sys, 0.8, target_tube, opts);
     ct = toc;
