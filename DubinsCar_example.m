@@ -46,7 +46,7 @@ for itt=0:time_horizon
 end
 % axis equal
 % axis(axis_vec)
-target_tube = TargetTube(target_tube_cell{:});
+target_tube = Tube(target_tube_cell{:});
 
 %% Set of direction vectors
 theta_vector_ccc = linspace(0, 2*pi, no_of_direction_vectors_ccc+1);
@@ -62,7 +62,7 @@ timer_polytope_ccc = tic;
 opts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3, ...
         'set_of_dir_vecs', set_of_direction_vectors_ccc,...
         'init_safe_set_affine',Polyhedron(),'verbose',1);
-[ccc_polytope, extra_info_wmax, extra_info_cheby] = SReachSet('term','chance-open', sys, 0.8, target_tube, opts);
+[ccc_polytope, extra_info] = SReachSet('term','chance-open', sys, 0.8, target_tube, opts);
 elapsed_time_polytope_ccc = toc(timer_polytope_ccc);
 fprintf('Time taken for computing the polytope (CCC): %1.3f s\n', elapsed_time_polytope_ccc);
 % disp('Fourier transform approach');
