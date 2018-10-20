@@ -15,7 +15,7 @@ CCC_SCALE_LIMIT = 20;
 GENZPS_SCALE_LIMIT = 20;
 NO_OF_DIR_VECS = 24;
 
-run_methods = {'ccc', 'genzps'};%'ccc','genzps'};
+run_methods = {'ccc', 'genzps', 'dp','lagrangian'};%'ccc','genzps'};
 
 run_lag = false;
 run_dp = false;
@@ -84,7 +84,7 @@ if run_2d_set
     % safe set definition
     safe_set = Polyhedron('lb', -1 * ones(1, 2), 'ub', ones(1, 2));
     % target tube definition
-    target_tube = TargetTube('viability', safe_set, time_horizon);
+    target_tube = Tube('viability', safe_set, time_horizon);
 
     sys = getChainOfIntegLtiSystem(2, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
         RandomVector('Gaussian', zeros(2, 1), diag([1e-6, 1e-3])));
@@ -197,7 +197,7 @@ if run_lag
         % safe set definition
         safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
         % target tube definition
-        target_tube = TargetTube('viability', safe_set, time_horizon);
+        target_tube = Tube('viability', safe_set, time_horizon);
 
         sys = getChainOfIntegLtiSystem(lv, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
             RandomVector('Gaussian', zeros(lv,1), 0.001*eye(lv)));
@@ -238,7 +238,7 @@ if run_dp
     % safe set definition
     safe_set = Polyhedron('lb', -1 * ones(1, 2), 'ub', ones(1, 2));
     % target tube definition
-    target_tube = TargetTube('viability', safe_set, time_horizon);
+    target_tube = Tube('viability', safe_set, time_horizon);
 
     sys = getChainOfIntegLtiSystem(2, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
         RandomVector('Gaussian', zeros(2,1), 0.001*eye(2)));
@@ -281,7 +281,7 @@ if run_ccc_set
         % safe set definition
         safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
         % target tube definition
-        target_tube = TargetTube('viability', safe_set, time_horizon);
+        target_tube = Tube('viability', safe_set, time_horizon);
 
         mu = zeros(lv, 1);
         sig = diag([1e-6*ones(1, lv-1), 1e-3]);
@@ -334,7 +334,7 @@ if run_genzps_open_set
         % safe set definition
         safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
         % target tube definition
-        target_tube = TargetTube('viability', safe_set, time_horizon);
+        target_tube = Tube('viability', safe_set, time_horizon);
 
         mu = zeros(lv, 1);
         sig = diag([1e-6*ones(1, lv-1), 1e-3]);
