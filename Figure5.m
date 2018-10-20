@@ -1,6 +1,6 @@
-%% Verification of satellite rendezvous problem via SReachSet This example will
-%demonstrate the use of SReachTools in verification of stochastic
-%continuous-state discrete-time linear time-invariant (LTI) systems.
+%% Verification of satellite rendezvous problem via SReachSet 
+% This example will demonstrate the use of SReachTools in verification of
+% stochastic continuous-state discrete-time linear time-invariant (LTI) systems.
 % 
 % Specifically, we will discuss how SReachTools can use Fourier transforms
 % (<http://www.math.wsu.edu/faculty/genz/software/matlab/qsimvnv.m Genz's
