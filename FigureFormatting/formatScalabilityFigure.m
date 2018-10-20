@@ -14,7 +14,7 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % load the data
-cmptimes = load('scalability_comptimes.mat');
+cmptimes = load('../MatFiles/scalability_comptimes.mat');
 
 methods = {'lag', 'ccc', 'genzps'};
 

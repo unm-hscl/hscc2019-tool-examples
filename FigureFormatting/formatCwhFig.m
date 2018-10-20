@@ -14,8 +14,8 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % Load figures
-figs(2) = openfig('exampleFigs/CWH_example_ZeroInitVel_traj.fig');
-figs(1) = openfig('exampleFigs/CWH_example_ZeroInitVel.fig');
+figs(2) = openfig('../exampleFigs/CWH_example_ZeroInitVel_traj.fig');
+figs(1) = openfig('../exampleFigs/CWH_example_ZeroInitVel.fig');
 
 % remove the legend
 delete(figs(1).Children(1));

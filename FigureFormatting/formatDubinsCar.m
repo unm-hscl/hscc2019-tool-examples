@@ -14,7 +14,7 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % Load the figure
-hf = openfig('exampleFigs/DubinsCar_example_point.fig');
+hf = openfig('../exampleFigs/DubinsCar_example_point.fig');
 delete(hf.Children(1));
 ha = hf.Children(1);
 

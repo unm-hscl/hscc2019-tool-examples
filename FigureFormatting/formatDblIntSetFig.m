@@ -21,7 +21,7 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % Load the figure
-openfig('exampleFigs/dblint_sets.fig');
+openfig('../exampleFigs/dblint_sets.fig');
 
 % handles -> variables
 hf = gcf;
