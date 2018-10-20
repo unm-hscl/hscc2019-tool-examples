@@ -66,7 +66,7 @@ sys = getCwhLtiSystem(4, Polyhedron('lb', -umax*ones(2,1),...
        RandomVector('Gaussian', mean_disturbance,covariance_disturbance));
 
 %% Methods to run   
-ft_run = 0;
+ft_run = 1;
 cc_open_run = 1;
 
 %% Target tube construction --- reach-avoid specification
@@ -156,14 +156,14 @@ else
     polytope_cc_open = Polyhedron();
     elapsed_time_cc_open = NaN;
 end
-if exist('polytope_ft','var')
+if exist('polytope_ft','var') 
     plot(polytope_ft.slice([3,4], slice_at_vx_vy), 'color','b','alpha',1);
     legend_cell{end+1} = 'Underapprox. polytope (genzps-open)';
 else
     polytope_ft = Polyhedron();
     elapsed_time_ft = NaN;
 end
-direction_index_to_plot = 30;
+direction_index_to_plot = 38;
 if ~isEmptySet(polytope_cc_open)
     init_state = extra_info(2).vertices_underapprox_polytope(:,direction_index_to_plot);
     input_vec = extra_info(2).opt_input_vec_at_vertices(:,direction_index_to_plot);
@@ -188,7 +188,6 @@ xlabel('$x$','interpreter','latex');
 ylabel('$y$','interpreter','latex');
 box on;
 grid on;
-saveas(gcf, '../results/cwh_stochastic_reach_set.png')
 
 fprintf('Elapsed time: (genzps-open) %1.3f | (chance-open) %1.3f seconds\n',...
     elapsed_time_ft, elapsed_time_cc_open);
