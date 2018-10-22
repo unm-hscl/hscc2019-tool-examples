@@ -1,3 +1,12 @@
+%
+% Name        : chainOfIntsExample.m
+% Authors     : Joseph D. Gleason and Abraham P. Vinod
+% Date        : 2018-10-12
+%
+% Description : Generate Figure 5 from submitted work
+% 
+
+
 %% Verification of satellite rendezvous problem via SReachSet 
 % This example will demonstrate the use of SReachTools in verification of
 % stochastic continuous-state discrete-time linear time-invariant (LTI) systems.

@@ -1,6 +1,13 @@
-clear
-close all
-clc
+%
+% Name        : chainOfIntsExample.m
+% Authors     : Joseph D. Gleason and Abraham P. Vinod
+% Date        : 2018-10-11
+%
+% Description : Generate Figure 4 from submitted work
+% 
+
+close all;
+clearvars;
 
 time_horizon = 50;
 time_const = 1/2*time_horizon;
@@ -154,23 +161,3 @@ legend_cell = {'Target tube', 'Nominal trajectory',...
 h_vec = [h_target_tube, h_nominal_traj, h_opt_mean_ccc,...
     h_opt_mean_ccc_affine, h_opt_mean_genzps, h_opt_mean_particle];
 legend(h_vec, legend_cell, 'Location','EastOutside', 'interpreter','latex');
-
-% %% Check ccc-affine
-% n_mcarlo_sims = 1e5;
-% concat_state_realization = generateMonteCarloSims(n_mcarlo_sims,...
-%     sys, init_state_ccc_affine, time_horizon, opt_input_vec_ccc_affine, opt_input_gain_ccc_affine);
-% mcarlo_result = target_tube.contains([repmat(init_state_ccc_affine,1,n_mcarlo_sims);
-%                                       concat_state_realization]);
-% fprintf('SReachPoint prob: %1.2f, Simulated prob: %1.2f', prob_ccc_affine, sum(mcarlo_result)/n_mcarlo_sims);
-%                                   
-% %% Check particle-open
-% n_mcarlo_sims = 1e5;
-% concat_state_realization = generateMonteCarloSims(n_mcarlo_sims,...
-%     sys, init_state_particle_open, time_horizon, opt_input_vec_particle_open);
-% mcarlo_result = target_tube.contains([repmat(init_state_particle_open,1,n_mcarlo_sims);
-%                                       concat_state_realization]);
-% fprintf('SReachPoint prob: %1.2f, Simulated prob: %1.2f', prob_particle_open, sum(mcarlo_result)/n_mcarlo_sims);
-%              
-% Get a random point
-% init_state_ccc_open = ccc_polytope.randomPoint();
-

@@ -1,13 +1,16 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Name of the programmer: J. Gleason and Abraham P. Vinod %
-% Date: 2018-10-19                                        %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Name        : chainOfIntsExample.m
+% Authors     : Joseph D. Gleason and Abraham P. Vinod
+% Date        : 2018-10-11
+%
+% Description : Generate Figure 2 from submitted work; plot 2-d set comparison
+%               of stochastic viability analysis for a double integrator to
+%               stay within a box [-1, 1]^2 using SReachTools, specifically 
+%               SReachSet and SReachDynProg
+% 
 
-%% Purpose
-% Perform stochastic viability analysis for a double integrator to stay within a
-% box [-1,1]^2 using SReachTools, specifically SReachSet and SReachDynProg
-
-%% Notes
+close all;
+clearvars;
 
 % example parameters
 T = 0.25;
@@ -16,9 +19,7 @@ time_horizon = 5;
 NO_OF_DIR_VECS_CC = 24;
 NO_OF_DIR_VECS_GP = 24;
 
-
-% Plot 2d double integrator set comparison methods
-
+% warnings off to supress output
 warning('off','all');
 
 % safe set definition
@@ -94,6 +95,7 @@ ct = toc;
 fprintf('%.5f\n', ct)
 fprintf('        --> x_inc = 0.05\n');
 fprintf('        --> u_inc = 0.01\n');
+fprintf('\n');
 
 dyn_soln_lvl_set = getDynProgLevelSets2D(cell_of_xvec, prob_x, 0.8, ...
     target_tube);
@@ -106,7 +108,8 @@ plot(dyn_soln_lvl_set, 'color', 'b');
 plot(cccSet, 'color', [1, 0.6, 0]);
 plot(genzSet, 'color', [0, 0.6, 1]);
 plot(luSet, 'color', 'g','alpha',0.5);
-leg=legend('Safe set','lag-over','SReachDynProg','chance-open','genzps-open','lag-under');
+leg = legend('Safe set', 'lag-over', 'SReachDynProg', 'chance-open', ...
+    'genzps-open', 'lag-under');
 set(leg,'Location','EastOutside');
 hold off;
 axis square;
