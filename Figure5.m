@@ -3,89 +3,32 @@
 % Authors     : Joseph D. Gleason and Abraham P. Vinod
 % Date        : 2018-10-12
 %
-% Description : Generate Figure 5 from submitted work
+% Description : Generate Figure 5 from submitted work; verification of satellite
+%               rendezvous-docking problem using Clohessy-Wiltshire-Hill
+%               dynamics
 % 
 
+close all;
+clearvars;
 
-%% Verification of satellite rendezvous problem via SReachSet 
-% This example will demonstrate the use of SReachTools in verification of
-% stochastic continuous-state discrete-time linear time-invariant (LTI) systems.
-% 
-% Specifically, we will discuss how SReachTools can use Fourier transforms
-% (<http://www.math.wsu.edu/faculty/genz/software/matlab/qsimvnv.m Genz's
-% algorithm> and MATLAB's patternsearch), convex chance constraints, and
-% Lagrangian methods to construct underapproximative stochastic reach sets.
-%
-% Our approaches is grid-free and recursion-free resulting in highly scalable
-% solutions, especially for Gaussian-perturbed LTI systems. 
-%
-% This Live Script is part of the SReachTools toolbox. License for the use of
-% this function is given in
-% <https://github.com/unm-hscl/SReachTools/blob/master/LICENSE
-% https://github.com/unm-hscl/SReachTools/blob/master/LICENSE>.
-
-% Prescript running
-close all;clc;clear;
-srtinit
-%% Problem formulation: Spacecraft motion via CWH dynamics
-% We consider both the spacecrafts, referred to as the deputy spacecraft and 
-% the chief spacecraft, to be in the same circular orbit. In this example, we 
-% will consider the problem of verification for the spacecraft rendezvous
-% problem, i.e., identify all the initial states from which the deputy can can
-% rendezvous with the chief while staying within the line-of-sight cone with
-% a likelihood above a user-specified threshold.
-%%
-% <<cwh_sketch.png>>
-%% Dynamics model for the deputy relative to the chief spacecraft The relative
-%planar dynamics of the deputy with respect to the chief are described by the
-%<https://doi.org/10.1109/CDC.2013.6760626 Clohessy-Wiltshire-Hill (CWH)
-%equations,> 
-% 
-% $$\ddot{x} - 3 \omega x - 2 \omega \dot{y} = \frac{F_{x}}{m_{d}}$$
-% 
-% $$            \ddot{y} + 2 \omega \dot{x} = \frac{F_{y}}{m_{d}}$$ 
-% 
-% where the position of the deputy relative to the chief is $x,y \in
-% \mathbf{R}$, $\omega = \sqrt{\frac{\mu}{R_{0}^{3}}}$ is the orbital frequency,
-% $\mu$ is the gravitational constant, and $R_{0}$ is the orbital radius of the
-% chief spacecraft.  We define the state as $\overline{x} = {[x\ y\ \dot{x}\
-% \dot{y}]}^\top \in \mathbf{R}^{4}$ which is the position and velocity of the
-% deputy relative to the chief along $\mathrm{x}$- and $\mathrm{y}$- axes, and
-% the input as $\overline{u} = {[F_{x}\ F_{y}]}^\top \in
-% \mathcal{U}\subset\mathbf{R}^{2}$. 
-% 
-% We will discretize the CWH dynamics in time, via zero-order hold, to obtain
-% the discrete-time linear time-invariant system and add a Gaussian disturbance
-% to account for the modeling uncertainties and the disturbance forces,
-% 
-% $$\overline{x}_{k+1} = A \overline{x}_{k} + B \overline{u}_{k} +
-% \overline{w}_{k}$$
-% 
-% with $\overline{w}_{k} \in \mathbf{R}^{4}$ as an IID Gaussian zero-mean 
-% random process with a known covariance matrix $\Sigma_{\overline{w}}$. 
- 
 %% System definition
-umax=0.1;
+umax = 0.1;
 mean_disturbance = zeros(4,1);
 covariance_disturbance = diag([1e-4, 1e-4, 5e-8, 5e-8]);
 % Define the CWH (planar) dynamics of the deputy spacecraft relative to the
 % chief spacecraft as a LtiSystem object
 sys = getCwhLtiSystem(4, Polyhedron('lb', -umax*ones(2,1),...
-                                        'ub',  umax*ones(2,1)),...
+                                    'ub',  umax*ones(2,1)),...
        RandomVector('Gaussian', mean_disturbance,covariance_disturbance));
-
-%% Methods to run   
-ft_run = 1;
-cc_open_run = 1;
 
 %% Target tube construction --- reach-avoid specification
 time_horizon=5;          % Stay within a line of sight cone for 4 time steps and 
                          % reach the target at t=5% Safe Set --- LoS cone
 % Safe set definition --- LoS cone |x|<=y and y\in[0,ymax] and |vx|<=vxmax and 
 % |vy|<=vymax
-ymax=2;
-vxmax=0.5;
-vymax=0.5;
+ymax = 2;
+vxmax = 0.5;
+vymax = 0.5;
 A_safe_set = [1, 1, 0, 0;           
              -1, 1, 0, 0; 
               0, -1, 0, 0;
@@ -101,12 +44,12 @@ b_safe_set = [0;
               vymax;
               vymax];
 safe_set = Polyhedron(A_safe_set, b_safe_set);
+
 % Target set --- Box [-0.1,0.1]x[-0.1,0]x[-0.01,0.01]x[-0.01,0.01]
 target_set = Polyhedron('lb', [-0.1; -0.1; -0.01; -0.01],...
                         'ub', [0.1; 0; 0.01; 0.01]);
 target_tube = Tube('reach-avoid',safe_set, target_set, time_horizon);                    
 slice_at_vx_vy = zeros(2,1);
-%%
 
 %% Preparation for set computation
 prob_thresh = 0.8;
@@ -124,26 +67,22 @@ set_of_dir_vecs_cc_open = [cos(theta_vec);
 init_safe_set_affine = Polyhedron('He',[zeros(2,2) eye(2,2) slice_at_vx_vy]);
 
 %% CC (Linear program approach)
-if cc_open_run
-    options = SReachSetOptions('term', 'chance-open',...
-        'set_of_dir_vecs', set_of_dir_vecs_cc_open,...
-        'init_safe_set_affine', init_safe_set_affine);
-    timer_cc_open = tic;
-    [polytope_cc_open, extra_info] = SReachSet('term','chance-open', sys,...
-        prob_thresh, target_tube, options);  
-    elapsed_time_cc_open = toc(timer_cc_open);
-end
+options = SReachSetOptions('term', 'chance-open',...
+    'set_of_dir_vecs', set_of_dir_vecs_cc_open,...
+    'init_safe_set_affine', init_safe_set_affine);
+timer_cc_open = tic;
+[polytope_cc_open, extra_info] = SReachSet('term','chance-open', sys,...
+    prob_thresh, target_tube, options);  
+elapsed_time_cc_open = toc(timer_cc_open);
 
 %% Fourier transform (Genz's algorithm and MATLAB's patternsearch)
-if ft_run
-    options = SReachSetOptions('term', 'genzps-open',...
-        'set_of_dir_vecs', set_of_dir_vecs_ft,...
-        'init_safe_set_affine', init_safe_set_affine, 'verbose', 1);
-    timer_ft = tic;
-    polytope_ft = SReachSet('term','genzps-open', sys, prob_thresh,...
-        target_tube, options);  
-    elapsed_time_ft = toc(timer_ft);
-end
+options = SReachSetOptions('term', 'genzps-open',...
+    'set_of_dir_vecs', set_of_dir_vecs_ft,...
+    'init_safe_set_affine', init_safe_set_affine, 'verbose', 1);
+timer_ft = tic;
+polytope_ft = SReachSet('term','genzps-open', sys, prob_thresh,...
+    target_tube, options);  
+elapsed_time_ft = toc(timer_ft);
 
 %% Preparation for Monte-Carlo simulations of the optimal controllers
 % Monte-Carlo simulation parameters
@@ -151,22 +90,22 @@ n_mcarlo_sims = 1e5;
 n_sims_to_plot = 5;
 
 %% Plotting and Monte-Carlo simulation-based validation
-figure(1);
+figure(5);
 clf
 box on;
 hold on;
-plot(safe_set.slice([3,4], slice_at_vx_vy), 'color', 'y');
-plot(target_set.slice([3,4], slice_at_vx_vy), 'color', 'g');
+plot(safe_set.slice([3,4], slice_at_vx_vy), 'color', [0.95, 0.95, 0]);
+plot(target_set.slice([3,4], slice_at_vx_vy), 'color', [0, 0, 0]);
 legend_cell = {'Safe set','Target set'};
 if exist('polytope_cc_open','var')
-    plot(polytope_cc_open.slice([3,4], slice_at_vx_vy), 'color','m','alpha',1);
+    plot(polytope_cc_open.slice([3,4], slice_at_vx_vy), 'color',[1, 0.6, 0],'alpha',1);
     legend_cell{end+1} = 'Underapprox. polytope (chance-open)';
 else
     polytope_cc_open = Polyhedron();
     elapsed_time_cc_open = NaN;
 end
 if exist('polytope_ft','var') 
-    plot(polytope_ft.slice([3,4], slice_at_vx_vy), 'color','b','alpha',1);
+    plot(polytope_ft.slice([3,4], slice_at_vx_vy), 'color',[0, 0.6, 1],'alpha',1);
     legend_cell{end+1} = 'Underapprox. polytope (genzps-open)';
 else
     polytope_ft = Polyhedron();
@@ -215,33 +154,23 @@ function [legend_cell] = plotMonteCarlo(method_str, mcarlo_result,...
         % Check if the trajectory satisfies the reach-avoid objective
         if mcarlo_result(realization_index)
             % Assign green triangle as the marker
-            markerString = 'g^-';
+            plotOptions = {'Color', 'g', 'Marker', '^', ...
+                'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'g' 'MarkerSize', 5};
+            markerString = 'g^';
         else
             % Assign red asterisk as the marker
-            markerString = 'r*-';
+            plotOptions = {'Color', 'r', 'Marker', 'x', ...
+                'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'r' 'MarkerSize', 5};
+            markerString = 'rx';
         end
+
         % Create [x(t_1) x(t_2)... x(t_N)]
         reshaped_X_vector = reshape(...
             concat_state_realization(:,realization_index), state_dim,[]);
+
         % This realization is to be plotted
         h = plot([initial_state(1), reshaped_X_vector(1,:)], ...
                  [initial_state(2), reshaped_X_vector(2,:)], ...
-                 markerString, 'MarkerSize',10);
-        % Update the legends if the first else, disable
-        if strcmp(markerString,'g^-')
-            if green_legend_updated
-                h.Annotation.LegendInformation.IconDisplayStyle = 'off';
-            else
-                green_legend_updated = 1;
-                legend_cell{end+1} = strcat('Good trajectory ', method_str);
-            end
-        elseif strcmp(markerString,'r*-')
-            if red_legend_updated
-                h.Annotation.LegendInformation.IconDisplayStyle = 'off';
-            else
-                red_legend_updated = 1;
-                legend_cell{end+1} = strcat('Bad trajectory ', method_str);
-            end
-        end
+                 plotOptions{:});
     end
 end
