@@ -1,10 +1,13 @@
 # Repeatability Instructions
 
 This repository contains the repeatability package for the SReachTools: A MATLAB
-Stochastic Reachability Toolbox. This has been submitted to the 22nd ACM
-International Conference on Hybrid Systems: Computation and Control summarizing
-the features of SReachTools. A copy of this submission is available in the
-repository.
+Stochastic Reachability Toolbox.
+
+This has been submitted to the 22nd ACM International Conference on Hybrid
+Systems: Computation and Control summarizing the features of SReachTools. A copy
+of this submission is available in the repository. The repeatability package is
+available on Github:
+[https://github.com/unm-hscl/hscc2019-tool-examples](https://github.com/unm-hscl/hscc2019-tool-examples).
 
 ## Requirements
 
