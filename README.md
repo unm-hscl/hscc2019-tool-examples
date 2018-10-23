@@ -1,12 +1,20 @@
-# Repeatability Intructions
+# Repeatability Instructions
+
+This repository contains the repeatability package for the SReachTools: A MATLAB
+Stochastic Reachability Toolbox. This has been submitted to the 22nd ACM
+International Conference on Hybrid Systems: Computation and Control summarizing
+the features of SReachTools. A copy of this submission is available in the
+repository.
 
 ## Requirements
 
-- MATLAB >R2017
+- MATLAB (>R2017)
+    - MATLAB's Statistics and Machine Learning Toolbox
+    - MATLAB's Global Optimization Toolbox (Optional)
 - SReachTools [https://unm-hscl.github.io/SReachTools/](https://unm-hscl.github.io/SReachTools/)
 - Model Parametric Toolbox [MPT3.0](https://www.mpt3.org/)
 - CVX [http://cvxr.com/cvx/](http://cvxr.com/cvx/)
-- Gurobi Solver [http://www.gurobi.com/](http://www.gurobi.com/)
+- (Recommended) Gurobi [http://www.gurobi.com/](http://www.gurobi.com/)
 
 ## Installation Instructions
 
