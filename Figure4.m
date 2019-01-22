@@ -18,7 +18,7 @@ box_halflength = 4;
 omega = pi/time_horizon/sampling_time;
 turning_rate = omega*ones(time_horizon,1);
 dist_cov = 0.0001;
-prob_thresh = 0.8;
+prob_thresh = 0.9;
 no_of_direction_vectors_ccc = 16;
 v_nominal = 10;
 umax = v_nominal/3*2;
@@ -65,8 +65,10 @@ init_state_ccc_affine = [2;2] + [2;1];
 % Compute the zero input mean trajectory
 sys_no_input = LtvSystem('StateMatrix',sys.state_mat,...
     'DisturbanceMatrix', sys.dist_mat,'Disturbance',sys.dist);
-[mean_X_zizs, ~] = SReachFwd('concat-stoch', sys_no_input,...
+X_zizs = SReachFwd('concat-stoch', sys_no_input,...
     zeros(sys.state_dim,1), time_horizon);
+mean_X_zizs = X_zizs.mean();
+mean_X_zizs = mean_X_zizs(sys.state_dim+1:end);
 
 %% SReachPoint: chance-open (with pwa_accuracy 1e-3)
 opts = SReachPointOptions('term', 'chance-open','pwa_accuracy',1e-3);
