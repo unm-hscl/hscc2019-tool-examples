@@ -16,6 +16,7 @@ FONT_SIZE = 8;
 % Load figures
 figs(2) = openfig('../exampleFigs/CWH_example_ZeroInitVel_traj.fig');
 figs(1) = openfig('../exampleFigs/CWH_example_ZeroInitVel.fig');
+figs(3) = openfig('../exampleFigs/CWH_Ex.fig');
 
 % remove the legend
 delete(figs(1).Children(1));
@@ -31,7 +32,9 @@ delete(axs(2).Children(length(axs(2).Children)));
 delete(axs(2).Children(length(axs(2).Children)));
 
 copyobj(axs(2).Children, axs(1));
+copyobj(figs(3).Children(2).Children(8), axs(1));
 delete(figs(2));
+delete(figs(3));
 
 hf = figs(1);
 ha = axs(1);
@@ -69,8 +72,12 @@ ha.Position(2) = 0.34;
 ha.YLim = [-1.5, 0.1];
 ha.XLim = [-1.5, 1.5];
 
+ha.Children(1).DisplayName = 'Lagrangian';
+uistack(ha.Children(1), 'down', 9);
+
 delete(ha.Children(1));
 delete(ha.Children(7));
+
 
 for lv = 1:length(ha.Children)
     if strcmp(ha.Children(lv).Type, 'scatter')
@@ -129,7 +136,7 @@ end
 % an.LineStyle = 'none';
 % pos = an.Position;
 
-delete(ha.Children(9));
+delete(ha.Children(10));
 
 an = annotation(hf, 'rectangle');
 an.Position(1) = 0.1;
@@ -151,8 +158,8 @@ txt.Interpreter = 'latex';
 txt.LineStyle = 'none';
 txt.FontSize = FONT_SIZE;
 
-strs = {'target', 'ccc', 'ftgenz'};
-set_colors = {[0, 0, 0], [1, 0.6, 0], [0, 0.6, 1]};
+strs = {'target', 'ccc', 'ftgenz', 'lagrangian'};
+set_colors = {[0, 0, 0], [1, 0.6, 0], [0, 0.6, 1], [0, 0.9, 0]};
 lefttab = an.Position(1);
 righttab = 0.5;
 for lv = 1:length(strs)
@@ -299,5 +306,5 @@ end
 % txt.LineStyle = 'none';
 % txt.FontSize = FONT_SIZE;
 
-print(hf, '-r300', '-dpng', 'exampleFigs/pngs/cwh-example.png');
+print(hf, '-r300', '-dpng', '../exampleFigs/pngs/cwh-example.png');
 

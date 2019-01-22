@@ -47,9 +47,9 @@ ha.YLabel.String = '$y$';
 ha.YLabel.FontSize = FONT_SIZE;
 ha.YLabel.Interpreter = 'latex';
 
-delete(ha.Children(5));
+delete(ha.Children(6));
 
-scat_colors = {[1, 0, 0], [0, 0, 1], [0, 0.9, 0], [0, 0, 0]};
+scat_colors = {[1, 0, 0], [0, 0, 1], [0, 0.9, 0], [0, 0, 0], [1, 0.6, 0]};
 
 scats = 0;
 for lv = 1:length(ha.Children)
@@ -80,8 +80,8 @@ ha.Position(2) = 0.13;
 ha.Position(1) = 0.11;
 % ha.Position(2) = 0.45;
 
-hl = legend([ha.Children(1:4)], ...
-    {'\texttt{particle-open}', '\texttt{genzps-open}', ...
+hl = legend([ha.Children(1:5)], ...
+    {'\texttt{lag-under}' '\texttt{particle-open}', '\texttt{genzps-open}', ...
         '\texttt{chance-affine}', '\texttt{chance-open}'});
 
 hl.FontSize = FONT_SIZE;
@@ -91,7 +91,7 @@ hl.Position = [0.5803    0.5984    0.3845    0.2108];
 
 an = annotation(hf, 'rectangle');
 an.Position(1) = hl.Position(1) + 0.062;
-an.Position(2) = hl.Position(2) - 0.05;
+an.Position(2) = hl.Position(2) - 0.07;
 an.Units = 'inches';
 an.Position(3) = 0.1;
 an.Position(4) = 0.1;
@@ -119,7 +119,7 @@ end
 
 an = annotation(hf, 'rectangle');
 an.Position(1) = hl.Position(1) + 0.062;
-an.Position(2) = hl.Position(2) - 0.05;
+an.Position(2) = hl.Position(2) - 0.07;
 an.Units = 'inches';
 an.Position(3) = 0.1;
 an.Position(4) = 0.1;
@@ -137,4 +137,4 @@ txt.String = 'Target Tube';
 txt.Interpreter = 'latex';
 txt.FontSize = FONT_SIZE;
 
-print(hf, '-r300', '-dpng', 'exampleFigs/pngs/dubinscar-example.png');
+print(hf, '-r300', '-dpng', '../exampleFigs/pngs/dubinscar-example.png');
