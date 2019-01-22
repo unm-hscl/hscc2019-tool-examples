@@ -1,5 +1,5 @@
 %
-% Name        : chainOfIntsExample.m
+% Name        : Figure4.m
 % Authors     : Joseph D. Gleason and Abraham P. Vinod
 % Date        : 2018-10-11
 %
@@ -17,11 +17,12 @@ sampling_time = 0.1;
 box_halflength = 4;
 omega = pi/time_horizon/sampling_time;
 turning_rate = omega*ones(time_horizon,1);
-dist_cov = 0.001;
-probability_threshold_of_interest = 0.8;
+dist_cov = 0.0001;
+prob_thresh = 0.8;
 no_of_direction_vectors_ccc = 16;
 v_nominal = 10;
 umax = v_nominal/3*2;
+n_mcarlo_sims = 1e3;
 
 %% LTV system definition
 [sys, heading_vec] = getDubinsCarLtv('add-dist',...
@@ -68,54 +69,109 @@ sys_no_input = LtvSystem('StateMatrix',sys.state_mat,...
     zeros(sys.state_dim,1), time_horizon);
 
 %% SReachPoint: chance-open (with pwa_accuracy 1e-3)
-opts = SReachPointOptions('term', 'chance-open','pwa_accuracy',1e-3);
-tic;
-[prob_ccc_open, opt_input_vec_ccc_open] = SReachPoint('term',...
-    'chance-open', sys, init_state_ccc_open, target_tube, opts);
-elapsed_time_ccc_open = toc;
-optimal_mean_X_ccc_open = Z * init_state_ccc_open +...
-    H * opt_input_vec_ccc_open + mean_X_zizs;
-optimal_mean_trajectory_ccc_open = reshape(optimal_mean_X_ccc_open,...
-    sys.state_dim,[]);
+% opts = SReachPointOptions('term', 'chance-open','pwa_accuracy',1e-3);
+% tic;
+% [prob_ccc_open, opt_input_vec_ccc_open] = SReachPoint('term',...
+%     'chance-open', sys, init_state_ccc_open, target_tube, opts);
+% elapsed_time_ccc_open = toc;
+% optimal_mean_X_ccc_open = Z * init_state_ccc_open +...
+%     H * opt_input_vec_ccc_open + mean_X_zizs;
+% optimal_mean_trajectory_ccc_open = reshape(optimal_mean_X_ccc_open,...
+%     sys.state_dim,[]);
 
-%% SReachPoint: chance-affine (with \Delta_u = 0.01)
-opts = SReachPointOptions('term', 'chance-affine','max_input_viol_prob',1e-2,...
-    'verbose',2);
-tic
-[prob_ccc_affine, opt_input_vec_ccc_affine, opt_input_gain_ccc_affine] =...
-    SReachPoint('term', 'chance-affine', sys, init_state_ccc_affine,...
-        target_tube, opts);
-elapsed_time_ccc_affine = toc;
-% X = Z * x_0 + H * (M \mu_W + d) + G * \mu_W
-muW = kron(ones(time_horizon,1), sys.dist.parameters.mean);
-optimal_mean_X_ccc_affine = Z * init_state_ccc_affine +...
-    H * (opt_input_gain_ccc_affine * muW + opt_input_vec_ccc_affine) + G * muW;
-optimal_mean_trajectory_ccc_affine = reshape(optimal_mean_X_ccc_affine,...
-    sys.state_dim,[]);
+% %% SReachPoint: chance-affine (with \Delta_u = 0.01)
+% opts = SReachPointOptions('term', 'chance-affine','max_input_viol_prob',1e-2,...
+%     'verbose',2);
+% tic
+% [prob_ccc_affine, opt_input_vec_ccc_affine, opt_input_gain_ccc_affine] =...
+%     SReachPoint('term', 'chance-affine', sys, init_state_ccc_affine,...
+%         target_tube, opts);
+% elapsed_time_ccc_affine = toc;
+% % X = Z * x_0 + H * (M \mu_W + d) + G * \mu_W
+% muW = kron(ones(time_horizon,1), sys.dist.parameters.mean);
+% optimal_mean_X_ccc_affine = Z * init_state_ccc_affine +...
+%     H * (opt_input_gain_ccc_affine * muW + opt_input_vec_ccc_affine) + G * muW;
+% optimal_mean_trajectory_ccc_affine = reshape(optimal_mean_X_ccc_affine,...
+%     sys.state_dim,[]);
 
-%% SReachPoint: genzps-open
-opts = SReachPointOptions('term', 'genzps-open',...
-    'PSoptions',psoptimset('display','iter'));
-tic
-[prob_genzps_open, opt_input_vec_genzps_open] = SReachPoint('term',...
-    'genzps-open', sys, init_state_genzps_open, target_tube, opts);
-elapsed_time_genzps = toc;
-optimal_mean_X_genzps_open =  Z * init_state_genzps_open +...
-    H * opt_input_vec_genzps_open + mean_X_zizs;
-optimal_mean_trajectory_genzps_open = reshape(optimal_mean_X_genzps_open,...
-    sys.state_dim,[]);
+% %% SReachPoint: genzps-open
+% opts = SReachPointOptions('term', 'genzps-open',...
+%     'PSoptions',psoptimset('display','iter'));
+% tic
+% [prob_genzps_open, opt_input_vec_genzps_open] = SReachPoint('term',...
+%     'genzps-open', sys, init_state_genzps_open, target_tube, opts);
+% elapsed_time_genzps = toc;
+% optimal_mean_X_genzps_open =  Z * init_state_genzps_open +...
+%     H * opt_input_vec_genzps_open + mean_X_zizs;
+% optimal_mean_trajectory_genzps_open = reshape(optimal_mean_X_genzps_open,...
+%     sys.state_dim,[]);
 
-%% SReachPoint: particle-open (use verbosity 1)
-tic
-opts = SReachPointOptions('term','particle-open','verbose',1,'num_particles',50);
-[prob_particle_open, opt_input_vec_particle_open] = SReachPoint('term',...
-    'particle-open', sys, init_state_particle_open, target_tube, opts);
-elapsed_time_particle = toc;
-optimal_mean_X_particle_open =  Z * init_state_particle_open +...
-    H * opt_input_vec_particle_open + mean_X_zizs;
-optimal_mean_trajectory_particle_open = reshape(optimal_mean_X_particle_open,...
-    sys.state_dim,[]);
+% %% SReachPoint: particle-open (use verbosity 1)
+% tic
+% opts = SReachPointOptions('term','particle-open','verbose',1,'num_particles',50);
+% [prob_particle_open, opt_input_vec_particle_open] = SReachPoint('term',...
+%     'particle-open', sys, init_state_particle_open, target_tube, opts);
+% elapsed_time_particle = toc;
+% optimal_mean_X_particle_open =  Z * init_state_particle_open +...
+%     H * opt_input_vec_particle_open + mean_X_zizs;
+% optimal_mean_trajectory_particle_open = reshape(optimal_mean_X_particle_open,...
+%     sys.state_dim,[]);
 
+%% Lagrangian under
+timer_lagunder = tic;
+theta_polytope_vec = linspace(0,2*pi,10)';
+lagunder_options = SReachSetOptions('term', 'lag-under', ...
+    'bound_set_method', 'polytope', 'template_polytope', ...
+    Polyhedron('V',[cos(theta_polytope_vec),sin(theta_polytope_vec)]), ...
+    'compute_style', 'vfmethod', 'vf_enum_method', 'lrs', 'verbose', 2);
+
+[polytope_lagunder, extra_info_under] = SReachSet('term', 'lag-under', ...
+    sys, prob_thresh, target_tube, lagunder_options);
+elapsed_time_lagunder = toc(timer_lagunder);
+
+%% Compute a far-away safe initial
+cvx_begin quiet
+    variable initial_state(sys.state_dim, 1)
+    minimize ([1 1]*initial_state)
+    subject to
+        polytope_lagunder.A*initial_state <= polytope_lagunder.b;
+        target_tube(1).A*initial_state <= target_tube(1).b;
+cvx_end
+switch cvx_status
+    case 'Solved'
+        fprintf('Testing initial state: ');
+        disp(initial_state');
+        
+        % Create a controller based on the underapproximation
+        srlcontrol = SReachLagController(sys, ... 
+            extra_info_under.bounded_dist_set, ...
+            extra_info_under.stoch_reach_tube);
+        % Generate Monte-Carlo simulations using the srlcontrol and
+        % generateMonteCarloSims
+        timer_mcarlo = tic;
+        [X,U,W] = generateMonteCarloSims(n_mcarlo_sims, sys, ...
+            initial_state, time_horizon, srlcontrol, [], ...
+            lagunder_options.verbose);
+        elapsed_time_mcarlo = toc(timer_mcarlo);
+        avg_time_mc = elapsed_time_mcarlo / n_mcarlo_sims;
+
+        % % Plot the convex hull of the spread of the points
+        polytopesFromMonteCarloSims(X, 4, [1,2], {'color','k','alpha',0});
+        a = gca;            
+        for tindx = 1:time_horizon-1
+            a.Children(tindx).Annotation.LegendInformation.IconDisplayStyle='off';
+        end
+        a.Children(1).Annotation.LegendInformation.IconDisplayStyle='on';
+        a.Children(1).DisplayName = 'Trajectory spread at various time steps';           
+        
+        % Plot the initial state
+        scatter(initial_state(1), initial_state(2), 200, 'ko', 'filled', ...
+            'DisplayName','Initial state');
+    otherwise        
+end
+
+init_state_lag = initial_state;
+optimal_mean_trajectory_lag = sum(X, 2) / size(X, 2);
 
 %% Save data
 save_mat_file_path = strcat('./MatFiles/','DubinsCar_example_point_',datestr(now,'YYYYmmDD_HHMMSS'),'.mat');
@@ -151,6 +207,10 @@ h_opt_mean_particle = scatter(...
       [init_state_particle_open(1), optimal_mean_trajectory_particle_open(1,:)],...
       [init_state_particle_open(2), optimal_mean_trajectory_particle_open(2,:)],...
       30, 'r^', 'filled','DisplayName', 'particle-open');  
+% h_opt_mean_lag = scatter(...
+%       [init_state_lag(1), optimal_mean_trajectory_lag(1,:)],...
+%       [init_state_lag(2), optimal_mean_trajectory_lag(2,:)],...
+%       30, 'p', 'filled', 'DisplayName', 'particle-open');  
 xlabel('x');
 ylabel('y');
 axis equal

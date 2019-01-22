@@ -1,5 +1,5 @@
 %
-% Name        : chainOfIntsExample.m
+% Name        : Figure5.m
 % Authors     : Joseph D. Gleason and Abraham P. Vinod
 % Date        : 2018-10-12
 %
@@ -84,6 +84,20 @@ polytope_ft = SReachSet('term','genzps-open', sys, prob_thresh,...
     target_tube, options);  
 elapsed_time_ft = toc(timer_ft);
 
+%% Lagrangian
+n_dim = sys.state_dim + sys.input_dim;
+timer_lagunder_options = tic;
+lagunder_options = SReachSetOptions('term', 'lag-under',...
+    'bound_set_method', 'ellipsoid', 'compute_style','support',...
+    'system', sys, 'vf_enum_method', 'lrs', 'verbose', 2,...
+    'n_underapprox_vertices', 2^n_dim * 6 + 2*n_dim);
+elapsed_time_lagunder_options = toc(timer_lagunder_options);
+
+timer_lagunder = tic;
+[polytope_lagunder, extra_info_under] = SReachSet('term', 'lag-under', ...
+    sys, prob_thresh, target_tube, lagunder_options);
+elapsed_time_lagunder = toc(timer_lagunder);
+
 %% Preparation for Monte-Carlo simulations of the optimal controllers
 % Monte-Carlo simulation parameters
 n_mcarlo_sims = 1e5;
@@ -102,6 +116,13 @@ if exist('polytope_cc_open','var')
     legend_cell{end+1} = 'Underapprox. polytope (chance-open)';
 else
     polytope_cc_open = Polyhedron();
+    elapsed_time_cc_open = NaN;
+end
+if exist('polytope_lagunder','var')
+    plot(polytope_lagunder.slice([3,4], slice_at_vx_vy), 'color',[0.3, 1, 0.3],'alpha',1);
+    legend_cell{end+1} = 'Underapprox. polytope (chance-open)';
+else
+    polytope_lagunder = Polyhedron();
     elapsed_time_cc_open = NaN;
 end
 if exist('polytope_ft','var') 

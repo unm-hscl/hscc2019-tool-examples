@@ -16,7 +16,7 @@ FONT_SIZE = 8;
 % load the data
 cmptimes = load('../MatFiles/scalability_comptimes.mat');
 
-methods = {'lag', 'ccc', 'genzps'};
+methods = {'lag_under', 'lag_over', 'ccc', 'genzps'};
 
 hf = figure();
 hf.Units = 'points';
@@ -24,8 +24,8 @@ hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
 hf.Position(4) = 1.5;
 
-markstyle = {'^', 'x', 'o'};
-colors = {[0, 0, 1], [0, 0, 0], [1, 0, 0]};
+markstyle = {'^', 'x', 'o', 's'};
+colors = {[0, 0, 1], [0, 0, 0], [1, 0, 0], [0, 1, 0]};
 for lv = 1:length(methods)
     ndims = length(cmptimes.(methods{lv}).comptimes);
     hp = plot(2:ndims+1, cmptimes.(methods{lv}).comptimes, ...
@@ -58,6 +58,9 @@ ha.YLabel.String = 'Computation Time [s]';
 ha.YLabel.Interpreter = 'latex';
 ha.YLabel.FontSize = FONT_SIZE;
 
-lh = legend('\texttt{lag-under}', '\texttt{chance-open}', ...
-    '\texttt{genzps-open}');
+lh = legend('\texttt{lag-under}', '\texttt{lag-over}', ...
+    '\texttt{chance-open}', '\texttt{genzps-open}');
 lh.Interpreter = 'latex';
+lh.Position = [0.6332, 0.2159, 0.3206, 0.3582];
+
+print('-dpng', '-r350', '../exampleFigs/pngs/scalability-example.png');

@@ -1,5 +1,5 @@
 %
-% Name        : chainOfIntsExample.m
+% Name        : Figure2.m
 % Authors     : Joseph D. Gleason and Abraham P. Vinod
 % Date        : 2018-10-11
 %
