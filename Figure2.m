@@ -18,7 +18,7 @@ time_horizon = 5;
 prob_thresh = 0.8;
 
 NO_OF_DIR_VECS_CC = 24;
-NO_OF_DIR_VECS_GP = 10;
+NO_OF_DIR_VECS_GP = 24;
 
 % warnings off to supress output
 % warning('off','all');
@@ -78,8 +78,9 @@ set_of_direction_vectors = [cos(theta_vector);
 
 fprintf('    Fourier Transform Genz PatternSearch: ');
 opts = SReachSetOptions('term', 'genzps-open', 'desired_accuracy', 5e-2, ...
-   'set_of_dir_vecs', set_of_direction_vectors, 'PSoptions', optimset('Display','iter'),...
-   'init_safe_set_affine',Polyhedron(),'verbose', 1);
+   'set_of_dir_vecs', set_of_direction_vectors, ... 'PSoptions', optimset('Display','iter'), 
+   'init_safe_set_affine',Polyhedron(),'verbose', 1, 'tol_bisect', 1e-3);
+
 
 tic;
 genzSet = SReachSet('term', 'genzps-open', sys, prob_thresh, target_tube, opts);
@@ -109,9 +110,9 @@ clf;
 plot(safe_set, 'color', [0.95, 0.95, 0]);
 hold on;
 plot(loSet, 'color', 'r');
-plot(dyn_soln_lvl_set, 'color', 'b');
+% plot(dyn_soln_lvl_set, 'color', 'b');
 plot(cccSet, 'color', [1, 0.6, 0]);
-% plot(genzSet, 'color', [0, 0.6, 1]);
+plot(genzSet, 'color', [0, 0.6, 1]);
 plot(luSet, 'color', 'g','alpha',0.5);
 leg = legend('Safe set', 'lag-over', 'SReachDynProg', 'chance-open', ...
     'genzps-open', 'lag-under');

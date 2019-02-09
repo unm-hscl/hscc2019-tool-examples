@@ -15,10 +15,12 @@ clearvars;
 close all;
 
 SCALABILITY_MAT_NAME = 'scalability_comptimes.mat';
-LAG_SCALE_LIMIT = 7;
+LAG_O_SCALE_LIMIT = 5;
+LAG_U_SCALE_LIMIT = 4;
 CCC_SCALE_LIMIT = 20;
 GENZPS_SCALE_LIMIT = 20;
-NO_OF_DIR_VECS = 24;
+CC_NO_OF_DIR_VECS = 24;
+GP_NO_OF_DIR_VECS = 15;
 
 % -----------------------------------------
 % 
@@ -42,9 +44,37 @@ warning('off', 'all');
 fprintf('Chain of Integrators: Lagrangian approximations\n');
 fprintf('-----------------------------------------------\n\n');
 
+lag_u_comp_times = zeros(1, LAG_U_SCALE_LIMIT - 1);
+for lv = 2:LAG_U_SCALE_LIMIT
+    fprintf('    Dimension: %d\n', lv);
 
-lag_comp_times = zeros(1, LAG_SCALE_LIMIT - 1);
-for lv = 2:LAG_SCALE_LIMIT
+    % safe set definition
+    safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
+    % target tube definition
+    target_tube = Tube('viability', safe_set, time_horizon);
+
+    sys = getChainOfIntegLtiSystem(lv, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
+        RandomVector('Gaussian', zeros(lv,1), 0.001*eye(lv)));
+    n_dim = sys.state_dim + sys.input_dim;
+    opts = SReachSetOptions('term', 'lag-under', 'bound_set_method',...
+        'ellipsoid','compute_style', 'support','system', sys, ...
+        'n_vertices', 2^n_dim * 7 + 2*n_dim, 'vf_enum_method', 'lrs');
+
+    tic;
+    luSet = SReachSet('term', 'lag-under', sys, 0.8, target_tube, opts);
+    lag_u_comp_times(lv - 1) = toc;
+
+    fprintf('    Computation Time: %.5f\n', lag_u_comp_times(lv-1));
+    fprintf('\n');
+end
+
+lagunder = struct('comptimes', lag_u_comp_times, 'run_time', datestr(now));
+% save(SCALABILITY_MAT_NAME, 'lagunder', '-append');
+save(SCALABILITY_MAT_NAME, 'lagunder');
+
+
+lag_o_comp_times = zeros(1, LAG_O_SCALE_LIMIT - 1);
+for lv = 2:LAG_O_SCALE_LIMIT
     fprintf('    Dimension: %d\n', lv);
 
     % safe set definition
@@ -55,21 +85,21 @@ for lv = 2:LAG_SCALE_LIMIT
     sys = getChainOfIntegLtiSystem(lv, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
         RandomVector('Gaussian', zeros(lv,1), 0.001*eye(lv)));
 
-    opts = SReachSetOptions('term', 'lag-under', ...
-        'bound_set_method', 'box', 'err_thresh', 1e-3);
-    % S = SReachSetLagBset(sys.dist, 0.95, opts);
+    n_dim = sys.state_dim;
+    opts = SReachSetOptions('term', 'lag-over', 'bound_set_method',...
+        'ellipsoid','compute_style','support','system', sys, ...
+        'n_vertices', 2^n_dim * 7 + 2*n_dim);
 
     tic;
-    luSet = SReachSet('term', 'lag-under', sys, 0.8, target_tube, opts);
-    lag_comp_times(lv - 1) = toc;
+    SReachSet('term', 'lag-over', sys, 0.8, target_tube, opts);
+    lag_o_comp_times(lv - 1) = toc;
 
-    fprintf('    Computation Time: %.5f\n', lag_comp_times(lv-1));
+    fprintf('    Computation Time: %.5f\n', lag_o_comp_times(lv-1));
     fprintf('\n');
 end
 
-lag = struct('comptimes', lag_comp_times, 'run_time', datestr(now));
-save(SCALABILITY_MAT_NAME, 'lag', '-append');
-
+lagover = struct('comptimes', lag_o_comp_times, 'run_time', datestr(now));
+save(SCALABILITY_MAT_NAME, 'lagover', '-append');
 % -------------------------------------------------
 % 
 % Convex chance-constrained methods
@@ -95,7 +125,7 @@ for lv = 2:CCC_SCALE_LIMIT
         Polyhedron('lb', -0.1, 'ub', 0.1), ...
         RandomVector('Gaussian', mu, sig));
 
-    theta_vector = linspace(0, 2*pi, NO_OF_DIR_VECS);
+    theta_vector = linspace(0, 2*pi, CC_NO_OF_DIR_VECS);
     set_of_direction_vectors = [cos(theta_vector); 
                                 sin(theta_vector);
                                 zeros(lv-2, length(theta_vector))];
@@ -143,7 +173,7 @@ for lv = 2:GENZPS_SCALE_LIMIT
         Polyhedron('lb', -0.1, 'ub', 0.1), ...
         RandomVector('Gaussian', mu, sig));
 
-    theta_vector = linspace(0, 2*pi, NO_OF_DIR_VECS);
+    theta_vector = linspace(0, 2*pi, GP_NO_OF_DIR_VECS);
     set_of_direction_vectors = [cos(theta_vector); 
                                 sin(theta_vector);
                                 zeros(lv-2, length(theta_vector))];
@@ -168,7 +198,7 @@ save(SCALABILITY_MAT_NAME, 'genzps', '-append');
 
 
 hf = figure(3);
-plot(2:length(lag_comp_times)+1, lag_comp_times, ...
+plot(2:length(lag_u_comp_times)+1, lag_u_comp_times, ...
     'Color', 'b', ...
     'Marker', '^', ...
     'MarkerFaceColor', 'b', ...

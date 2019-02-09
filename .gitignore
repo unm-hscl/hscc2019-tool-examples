@@ -1,3 +1,5 @@
+*.mat
+add.m
 # Windows default autosave extension
 *.asv
 
