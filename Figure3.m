@@ -15,12 +15,12 @@ clearvars;
 close all;
 
 SCALABILITY_MAT_NAME = 'scalability_comptimes.mat';
-LAG_O_SCALE_LIMIT = 5;
-LAG_U_SCALE_LIMIT = 4;
+LAG_O_SCALE_LIMIT = 12;
+LAG_U_SCALE_LIMIT = 5;
 CCC_SCALE_LIMIT = 20;
 GENZPS_SCALE_LIMIT = 20;
 CC_NO_OF_DIR_VECS = 24;
-GP_NO_OF_DIR_VECS = 15;
+GP_NO_OF_DIR_VECS = 16;
 
 % -----------------------------------------
 % 
@@ -41,8 +41,8 @@ warning('off', 'all');
 % 
 % -----------------------------------------
 
-fprintf('Chain of Integrators: Lagrangian approximations\n');
-fprintf('-----------------------------------------------\n\n');
+fprintf('Chain of Integrators: Lagrangian (under)approximations\n');
+fprintf('------------------------------------------------------\n\n');
 
 lag_u_comp_times = zeros(1, LAG_U_SCALE_LIMIT - 1);
 for lv = 2:LAG_U_SCALE_LIMIT
@@ -72,6 +72,8 @@ lagunder = struct('comptimes', lag_u_comp_times, 'run_time', datestr(now));
 % save(SCALABILITY_MAT_NAME, 'lagunder', '-append');
 save(SCALABILITY_MAT_NAME, 'lagunder');
 
+fprintf('Chain of Integrators: Lagrangian (over)approximations\n');
+fprintf('-----------------------------------------------------\n\n');
 
 lag_o_comp_times = zeros(1, LAG_O_SCALE_LIMIT - 1);
 for lv = 2:LAG_O_SCALE_LIMIT
@@ -100,6 +102,7 @@ end
 
 lagover = struct('comptimes', lag_o_comp_times, 'run_time', datestr(now));
 save(SCALABILITY_MAT_NAME, 'lagover', '-append');
+
 % -------------------------------------------------
 % 
 % Convex chance-constrained methods
@@ -107,7 +110,7 @@ save(SCALABILITY_MAT_NAME, 'lagover', '-append');
 % -------------------------------------------------
 
 fprintf('Chain of Integrators: Convex chance-constrained approximations\n');
-fprintf('-----------------------------------------------\n\n');
+fprintf('--------------------------------------------------------------\n\n');
 
 ccc_comp_times = zeros(1, CCC_SCALE_LIMIT - 1);
 for lv = 2:CCC_SCALE_LIMIT
@@ -181,7 +184,7 @@ for lv = 2:GENZPS_SCALE_LIMIT
     init_safe_set_affine = Polyhedron('He',...
         [zeros(lv-2,2) eye(lv-2) zeros(lv-2,1)]);
     opts = SReachSetOptions('term', 'genzps-open',...
-        'desired_accuracy', 1e-3, ...
+        'desired_accuracy', 5e-2, ...
         'set_of_dir_vecs', set_of_direction_vectors(:,1:1:end),...
         'init_safe_set_affine', init_safe_set_affine,'verbose',1);
 

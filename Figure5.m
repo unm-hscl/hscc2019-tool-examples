@@ -77,20 +77,20 @@ elapsed_time_cc_open = toc(timer_cc_open);
 
 %% Fourier transform (Genz's algorithm and MATLAB's patternsearch)
 options = SReachSetOptions('term', 'genzps-open',...
-    'set_of_dir_vecs', set_of_dir_vecs_ft,...
-    'init_safe_set_affine', init_safe_set_affine, 'verbose', 1);
+    'desired_accuracy', 5e-2, 'set_of_dir_vecs', set_of_dir_vecs_ft,...
+    'init_safe_set_affine', init_safe_set_affine, 'verbose', 0);
 timer_ft = tic;
 polytope_ft = SReachSet('term','genzps-open', sys, prob_thresh,...
     target_tube, options);  
 elapsed_time_ft = toc(timer_ft);
 
-%% Lagrangian
+%% Lagrangian underapproximation
 n_dim = sys.state_dim + sys.input_dim;
 timer_lagunder_options = tic;
 lagunder_options = SReachSetOptions('term', 'lag-under',...
     'bound_set_method', 'ellipsoid', 'compute_style','support',...
-    'system', sys, 'vf_enum_method', 'lrs', 'verbose', 2,...
-    'n_underapprox_vertices', 2^n_dim * 6 + 2*n_dim);
+    'system', sys, 'vf_enum_method', 'lrs', 'verbose', 0,...
+    'n_vertices', 2^n_dim * 6 + 2*n_dim);
 elapsed_time_lagunder_options = toc(timer_lagunder_options);
 
 timer_lagunder = tic;
@@ -111,27 +111,12 @@ hold on;
 plot(safe_set.slice([3,4], slice_at_vx_vy), 'color', [0.95, 0.95, 0]);
 plot(target_set.slice([3,4], slice_at_vx_vy), 'color', [0, 0, 0]);
 legend_cell = {'Safe set','Target set'};
-if exist('polytope_cc_open','var')
-    plot(polytope_cc_open.slice([3,4], slice_at_vx_vy), 'color',[1, 0.6, 0],'alpha',1);
-    legend_cell{end+1} = 'Underapprox. polytope (chance-open)';
-else
-    polytope_cc_open = Polyhedron();
-    elapsed_time_cc_open = NaN;
-end
-if exist('polytope_lagunder','var')
-    plot(polytope_lagunder.slice([3,4], slice_at_vx_vy), 'color',[0.3, 1, 0.3],'alpha',1);
-    legend_cell{end+1} = 'Underapprox. polytope (chance-open)';
-else
-    polytope_lagunder = Polyhedron();
-    elapsed_time_cc_open = NaN;
-end
-if exist('polytope_ft','var') 
-    plot(polytope_ft.slice([3,4], slice_at_vx_vy), 'color',[0, 0.6, 1],'alpha',1);
-    legend_cell{end+1} = 'Underapprox. polytope (genzps-open)';
-else
-    polytope_ft = Polyhedron();
-    elapsed_time_ft = NaN;
-end
+plot(polytope_cc_open.slice([3,4], slice_at_vx_vy), 'color',[1, 0.6, 0],'alpha', 1);
+legend_cell{end+1} = 'Underapprox. polytope (chance-open)';
+plot(polytope_ft.slice([3,4], slice_at_vx_vy), 'color',[0, 0.6, 1],'alpha',1);
+legend_cell{end+1} = 'Underapprox. polytope (genzps-open)';
+plot(polytope_lagunder.slice([3,4], slice_at_vx_vy), 'color',[0.3, 1, 0.3],'alpha',1);
+legend_cell{end+1} = 'Underapprox. polytope (lag-under)';
 direction_index_to_plot = 38;
 if ~isEmptySet(polytope_cc_open)
     init_state = extra_info(2).vertices_underapprox_polytope(:,direction_index_to_plot);
@@ -146,8 +131,7 @@ if ~isEmptySet(polytope_cc_open)
             input_vec);        
     
     % Check if the location is within the target_set or not
-    mcarlo_result = target_tube.contains([repmat(init_state,1,n_mcarlo_sims);
-                                          concat_state_realization]);
+    mcarlo_result = target_tube.contains(concat_state_realization);
     [legend_cell] = plotMonteCarlo(' (chance-open)', mcarlo_result,...
         concat_state_realization, n_mcarlo_sims, n_sims_to_plot,...
         sys.state_dim,init_state, legend_cell);
@@ -158,8 +142,10 @@ ylabel('$y$','interpreter','latex');
 box on;
 grid on;
 
-fprintf('Elapsed time: (genzps-open) %1.3f | (chance-open) %1.3f seconds\n',...
-    elapsed_time_ft, elapsed_time_cc_open);
+%% Compute time
+fprintf(['Elapsed time: (genzps-open) %1.3f | (chance-open) %1.3f ',...
+    '| (lag-under) %1.3f seconds\n'], elapsed_time_ft, elapsed_time_cc_open, ...
+    elapsed_time_lagunder);
 
 %% Helper functions
 % Plotting function
