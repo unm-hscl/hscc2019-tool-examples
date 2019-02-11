@@ -40,7 +40,7 @@ warning('off', 'all');
 % Lagrangian Methods
 % 
 % -----------------------------------------
-
+%% Lag-under
 fprintf('Chain of Integrators: Lagrangian (under)approximations\n');
 fprintf('------------------------------------------------------\n\n');
 
@@ -72,6 +72,7 @@ lagunder = struct('comptimes', lag_u_comp_times, 'run_time', datestr(now));
 % save(SCALABILITY_MAT_NAME, 'lagunder', '-append');
 save(SCALABILITY_MAT_NAME, 'lagunder');
 
+%% Lag-over
 fprintf('Chain of Integrators: Lagrangian (over)approximations\n');
 fprintf('-----------------------------------------------------\n\n');
 
@@ -90,7 +91,7 @@ for lv = 2:LAG_O_SCALE_LIMIT
     n_dim = sys.state_dim;
     opts = SReachSetOptions('term', 'lag-over', 'bound_set_method',...
         'ellipsoid','compute_style','support','system', sys, ...
-        'n_vertices', 2^n_dim * 7 + 2*n_dim);
+        'n_vertices', 2^n_dim * 7 + 2*n_dim, 'vf_enum_method', 'lrs');
 
     tic;
     SReachSet('term', 'lag-over', sys, 0.8, target_tube, opts);
