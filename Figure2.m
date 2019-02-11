@@ -37,20 +37,22 @@ fprintf('    -----------------\n');
 %% Lagrangian
 % -------------
 fprintf('    Lagrangian Underapproximation: ');
-opts = SReachSetOptions('term', 'lag-under', 'bound_set_method','ellipsoid',...
+luopts = SReachSetOptions('term', 'lag-under', 'bound_set_method','ellipsoid',...
    'compute_style','vfmethod','vf_enum_method','lrs');
 
 tic;
-luSet = SReachSet('term', 'lag-under', sys, prob_thresh, target_tube, opts);
+luSet = SReachSet('term', 'lag-under', sys, prob_thresh, target_tube, ...
+    luopts);
 ct = toc;
 fprintf('%.5f\n', ct);
 
 fprintf('    Lagrangian Overapproximation: ');
-opts = SReachSetOptions('term', 'lag-over', 'bound_set_method','ellipsoid',...
+loopts = SReachSetOptions('term', 'lag-over', 'bound_set_method','ellipsoid',...
    'compute_style','vfmethod','vf_enum_method','lrs');
 
 tic;
-loSet = SReachSet('term', 'lag-over', sys, prob_thresh, target_tube, opts);
+loSet = SReachSet('term', 'lag-over', sys, prob_thresh, target_tube, ...
+    loopts);
 ct = toc;
 fprintf('%.5f\n', ct);
 
@@ -61,12 +63,13 @@ set_of_direction_vectors = [cos(theta_vector);
                            sin(theta_vector)];
 
 fprintf('    Convex Chance-Constrained: ');
-opts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3, ...
+cccopts = SReachSetOptions('term', 'chance-open', 'pwa_accuracy', 1e-3, ...
    'set_of_dir_vecs', set_of_direction_vectors,...
    'init_safe_set_affine',Polyhedron());
 
 tic;
-cccSet = SReachSet('term', 'chance-open', sys, prob_thresh, target_tube, opts);
+cccSet = SReachSet('term', 'chance-open', sys, prob_thresh, target_tube, ...
+    cccopts);
 ct = toc;
 fprintf('%.5f\n', ct);
 
@@ -77,13 +80,14 @@ set_of_direction_vectors = [cos(theta_vector);
                            sin(theta_vector)];
 
 fprintf('    Fourier Transform Genz PatternSearch: ');
-opts = SReachSetOptions('term', 'genzps-open', 'desired_accuracy', 5e-2, ...
-   'set_of_dir_vecs', set_of_direction_vectors, ... 'PSoptions', optimset('Display','iter'), 
-   'init_safe_set_affine',Polyhedron(),'verbose', 1, 'tol_bisect', 1e-3);
+genzopts = SReachSetOptions('term', 'genzps-open', 'desired_accuracy', 5e-2, ...
+   'set_of_dir_vecs', set_of_direction_vectors, ... 
+   'init_safe_set_affine',Polyhedron(),'verbose', 0);
 
 
 tic;
-genzSet = SReachSet('term', 'genzps-open', sys, prob_thresh, target_tube, opts);
+genzSet = SReachSet('term', 'genzps-open', sys, prob_thresh, target_tube, ...
+    genzopts);
 ct = toc;
 fprintf('%.5f\n', ct);
 fprintf('\n');
@@ -105,17 +109,17 @@ dyn_soln_lvl_set = getDynProgLevelSets2D(cell_of_xvec, prob_x, prob_thresh, ...
     target_tube);
 
 %% Plot all the sets
-figure(1)
+figure(2)
 clf;
 plot(safe_set, 'color', [0.95, 0.95, 0]);
 hold on;
 plot(loSet, 'color', 'r');
-% plot(dyn_soln_lvl_set, 'color', 'b');
-plot(cccSet, 'color', [1, 0.6, 0]);
+plot(dyn_soln_lvl_set, 'color', 'b');
 plot(genzSet, 'color', [0, 0.6, 1]);
-plot(luSet, 'color', 'g','alpha',0.5);
-leg = legend('Safe set', 'lag-over', 'SReachDynProg', 'chance-open', ...
-    'genzps-open', 'lag-under');
+plot(cccSet, 'color', [1, 0.6, 0],'alpha',0.85);
+plot(luSet, 'color', 'g','alpha',0.65);
+leg = legend('Safe set', 'lag-over', 'SReachDynProg', 'genzps-open', ...
+    'chance-open', 'lag-under');
 set(leg,'Location','EastOutside');
 hold off;
 axis square;

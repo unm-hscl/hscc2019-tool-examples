@@ -20,7 +20,7 @@ LAG_U_SCALE_LIMIT = 5;
 CCC_SCALE_LIMIT = 20;
 GENZPS_SCALE_LIMIT = 20;
 CC_NO_OF_DIR_VECS = 24;
-GP_NO_OF_DIR_VECS = 16;
+GP_NO_OF_DIR_VECS = 24;
 
 % -----------------------------------------
 % 
@@ -58,7 +58,7 @@ for lv = 2:LAG_U_SCALE_LIMIT
     n_dim = sys.state_dim + sys.input_dim;
     opts = SReachSetOptions('term', 'lag-under', 'bound_set_method',...
         'ellipsoid','compute_style', 'support','system', sys, ...
-        'n_vertices', 2^n_dim * 7 + 2*n_dim, 'vf_enum_method', 'lrs');
+        'n_vertices', 2^n_dim * 6 + 2*n_dim, 'vf_enum_method', 'lrs');
 
     tic;
     luSet = SReachSet('term', 'lag-under', sys, 0.8, target_tube, opts);
@@ -91,7 +91,7 @@ for lv = 2:LAG_O_SCALE_LIMIT
     n_dim = sys.state_dim;
     opts = SReachSetOptions('term', 'lag-over', 'bound_set_method',...
         'ellipsoid','compute_style','support','system', sys, ...
-        'n_vertices', 2^n_dim * 7 + 2*n_dim, 'vf_enum_method', 'lrs');
+        'n_vertices', 2^n_dim * 6 + 2*n_dim, 'vf_enum_method', 'lrs');
 
     tic;
     SReachSet('term', 'lag-over', sys, 0.8, target_tube, opts);
@@ -187,7 +187,7 @@ for lv = 2:GENZPS_SCALE_LIMIT
     opts = SReachSetOptions('term', 'genzps-open',...
         'desired_accuracy', 5e-2, ...
         'set_of_dir_vecs', set_of_direction_vectors(:,1:1:end),...
-        'init_safe_set_affine', init_safe_set_affine,'verbose',1);
+        'init_safe_set_affine', init_safe_set_affine,'verbose', 0);
 
     tic;
     genzpsSet = SReachSet('term','genzps-open',sys, 0.8, target_tube, opts);
