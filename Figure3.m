@@ -16,12 +16,12 @@ close all;
 
 SCALABILITY_MAT_NAME = 'scalability_comptimes.mat';
 LAG_O_SCALE_LIMIT = 12;
+DP_SCALE_LIMIT = 4;
 LAG_U_SCALE_LIMIT = 5;
 CCC_SCALE_LIMIT = 20;
 GENZPS_SCALE_LIMIT = 20;
 CC_NO_OF_DIR_VECS = 24;
 GP_NO_OF_DIR_VECS = 24;
-
 % -----------------------------------------
 % 
 % Global parameters
@@ -200,7 +200,45 @@ end
 genzps = struct('comptimes', genzps_comp_times, 'run_time', datestr(now));
 save(SCALABILITY_MAT_NAME, 'genzps', '-append');
 
+% -----------------------------------------
+% 
+% Dynamic programming
+% 
+% -----------------------------------------
+%% Dynamic programming
+fprintf('Dynamic programming\n');
+fprintf('-----------------\n\n');
 
+dp_comp_times = zeros(1, DP_SCALE_LIMIT - 1);
+% Step sizes for gridding
+dyn_prog_xinc = 0.05; % For testing, use 0.5
+dyn_prog_uinc = 0.01; % For testing, use 0.1
+
+for lv = 2:DP_SCALE_LIMIT
+    fprintf('    Dimension: %d\n', lv);
+
+    % safe set definition
+    safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
+    % target tube definition
+    target_tube = Tube('viability', safe_set, time_horizon);
+
+    sys = getChainOfIntegLtiSystem(lv, T, Polyhedron('lb', -0.1, 'ub', 0.1), ...
+        RandomVector('Gaussian', zeros(lv,1), 0.001*eye(lv)));
+
+    tic;
+    [prob_x, cell_of_xvec] =  SReachDynProg('term', sys, dyn_prog_xinc, ...
+        dyn_prog_uinc, target_tube);
+    dp_comp_times(lv - 1) = toc;
+
+    fprintf('    Computation Time: %.5f\n', dp_comp_times(lv-1));
+    fprintf('\n');
+end
+
+dp = struct('comptimes', dp_comp_times, 'run_time', datestr(now));
+save(SCALABILITY_MAT_NAME, 'dp', '-append');
+
+
+%% Plot the time spent
 hf = figure(3);
 plot(2:length(lag_u_comp_times)+1, lag_u_comp_times, ...
     'Color', 'b', ...
