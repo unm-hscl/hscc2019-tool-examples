@@ -14,7 +14,7 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % Load the figure
-hf = openfig('../exampleFigs/DubinsCar_example_point.fig');
+hf = openfig('../exampleFigs/DubinsCar_2122019-1132.fig');
 delete(hf.Children(1));
 ha = hf.Children(1);
 
@@ -28,7 +28,7 @@ pause(2);
 hf.Units = 'points';
 hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
-hf.Position(4) = 2.8;
+hf.Position(4) = 2.2;
 hf.Position(1) = 3;
 hf.Position(2) = 3;
 
@@ -72,12 +72,14 @@ ha.Children(length(ha.Children)).EdgeAlpha = 1;
 
 % ha.XLim = [-7.5, 9.3];
 ha.Units = 'inches';
-ha.Position(4) = 2.5;
+ha.Position(4) = 2.2;
 ha.Position(3) = 1.8;
 ha.Position(3:4) = ha.Position(3:4) * 0.9;
 ha.Units = 'normalized';
 ha.Position(2) = 0.13;
 ha.Position(1) = 0.11;
+axis equal;
+ha.Position = [0.1069, 0.1508, 0.4830, 0.7920];
 % ha.Position(2) = 0.45;
 
 hl = legend([ha.Children(1:5)], ...
@@ -91,7 +93,7 @@ hl.Position = [0.5803    0.5984    0.3845    0.2108];
 
 an = annotation(hf, 'rectangle');
 an.Position(1) = hl.Position(1) + 0.062;
-an.Position(2) = hl.Position(2) - 0.07;
+an.Position(2) = hl.Position(2) - 0.10;
 an.Units = 'inches';
 an.Position(3) = 0.1;
 an.Position(4) = 0.1;
@@ -119,7 +121,7 @@ end
 
 an = annotation(hf, 'rectangle');
 an.Position(1) = hl.Position(1) + 0.062;
-an.Position(2) = hl.Position(2) - 0.07;
+an.Position(2) = hl.Position(2) - 0.10;
 an.Units = 'inches';
 an.Position(3) = 0.1;
 an.Position(4) = 0.1;

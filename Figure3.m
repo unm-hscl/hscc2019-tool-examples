@@ -151,7 +151,7 @@ end
 ccc = struct('comptimes', ccc_comp_times, 'run_time', datestr(now));
 save(SCALABILITY_MAT_NAME, 'ccc', '-append');
 
-
+%% Fourier Transform
 % -----------------------------------------------------
 % 
 % Fourier Transform with Genz Algorithm
@@ -211,12 +211,12 @@ fprintf('-----------------\n\n');
 
 dp_comp_times = zeros(1, DP_SCALE_LIMIT - 1);
 % Step sizes for gridding
-dyn_prog_xinc = 0.05; % For testing, use 0.5
-dyn_prog_uinc = 0.01; % For testing, use 0.1
+dyn_prog_xinc = 0.1; % For testing, use 0.5
+dyn_prog_uinc = 0.05; % For testing, use 0.1
 
 for lv = 2:DP_SCALE_LIMIT
     fprintf('    Dimension: %d\n', lv);
-
+    
     % safe set definition
     safe_set = Polyhedron('lb', -1 * ones(1, lv), 'ub', ones(1, lv));
     % target tube definition
@@ -235,10 +235,9 @@ for lv = 2:DP_SCALE_LIMIT
 end
 
 dp = struct('comptimes', dp_comp_times, 'run_time', datestr(now));
-save(SCALABILITY_MAT_NAME, 'dp', '-append');
+save('./MatFiles/scalability_comptimes_02132019.mat', 'dp', '-append')
 
-
-%% Plot the time spent
+%% Plotting
 hf = figure(3);
 plot(2:length(lag_u_comp_times)+1, lag_u_comp_times, ...
     'Color', 'b', ...
@@ -264,3 +263,6 @@ ha.YLim = [10e-3, 10e4];
 
 lh = legend('lag-under', 'chance-open', 'genzps-open');
 lh.Location = 'southeast';
+
+sendToMatlabTrigger('scalability-hscc.txt', ...
+    sprintf('Simulation is done at %s'), datestr(now));

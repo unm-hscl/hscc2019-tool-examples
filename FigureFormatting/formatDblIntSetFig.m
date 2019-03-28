@@ -9,11 +9,11 @@ close all;
 clearvars;
 
 % Set computation times
-SET_COMP_TIMES = struct('lagunder', 0.22614, ...
-                        'lagover', 0.21797, ...
-                        'dynprog', 126.15970, ...
-                        'ccc', 13.62379, ...
-                        'ftgenz', 338.5651);
+SET_COMP_TIMES = struct('lagunder', 0.25522, ...
+                        'lagover', 1.00020, ...
+                        'dynprog', 15.74976, ...
+                        'ccc', 8.33959, ...
+                        'ftgenz', 323.62843);
 
 % paper column width in pts
 HSCC_COLWIDTH = 241.14749;
@@ -21,7 +21,7 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % Load the figure
-openfig('../exampleFigs/dblint_sets.fig');
+openfig('../exampleFigs/dblint_2122019-1111.fig');
 
 % handles -> variables
 hf = gcf;
@@ -32,7 +32,7 @@ patches = ha.Children;
 hf.Units = 'points';
 hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
-hf.Position(4) = 3.4;
+hf.Position(4) = 2.5;
 
 % Axes
 ha.Position(3) = 0.6;
@@ -44,10 +44,15 @@ ha.Position(2) = 0.37;
 ha.XLim = [-1, 1];
 ha.YLim = [-1, 1];
 
+ha.Position = [0.2955, 0.4625, 0.3732, 0.5000];
+
 ha.FontSize = FONT_SIZE;
 ha.TickLabelInterpreter = 'latex';
 ha.XLabel.FontSize = FONT_SIZE;
 ha.YLabel.FontSize = FONT_SIZE;
+
+delete(legend());
+title('');
 
 % the "Legend"
 % Safe set
@@ -55,7 +60,7 @@ ha.YLabel.FontSize = FONT_SIZE;
 % the box
 an = annotation(hf, 'rectangle');
 an.Position(1) = 0.1;
-an.Position(2) = ha.Position(2) - 0.15;
+an.Position(2) = ha.Position(2) - 0.18;
 an.Units = 'inches';
 an.Position(3) = 0.1;
 an.Position(4) = 0.1;
@@ -65,7 +70,7 @@ an.FaceColor = patches(6).FaceColor;
 % Text
 txt = annotation(hf, 'textbox');
 txt.Position(1) = an.Position(1) + 0.03;
-txt.Position(2) = an.Position(2) - 0.005;
+txt.Position(2) = an.Position(2);
 txt.Position(3) = 0.3;
 txt.Position(4) = 0.05;
 txt.String = 'Safe Set';
@@ -76,7 +81,7 @@ txt.FontSize = FONT_SIZE;
 % comptimes text
 cptxt = annotation(hf, 'textbox');
 cptxt.Position(1) = txt.Position(1) + txt.Position(3) + 0.05;
-cptxt.Position(2) = txt.Position(2);
+cptxt.Position(2) = txt.Position(2) + 0.005;
 cptxt.Position(3) = 0.5;
 cptxt.Position(4) = 0.05;
 cptxt.String = 'Computation Times [s]';
@@ -91,7 +96,7 @@ for lv = 1:length(strs)
     pos = an.Position;
     an = annotation(hf, 'rectangle');
     an.Position(1) = pos(1);
-    an.Position(2) = pos(2) - 0.04;
+    an.Position(2) = pos(2) - 0.05;
     an.Position(3) = pos(3);
     an.Position(4) = pos(4);
     an.Units = 'normalized';
@@ -101,7 +106,7 @@ for lv = 1:length(strs)
         an.FaceColor = patches(6-lv+1).FaceColor;
         an = annotation(hf, 'rectangle');
         an.Position(1) = pos(1);
-        an.Position(2) = pos(2) - 0.04;
+        an.Position(2) = pos(2) - 0.05;
         an.Position(3) = pos(3);
         an.Position(4) = pos(4);
         an.Units = 'normalized';
@@ -112,7 +117,7 @@ for lv = 1:length(strs)
     % Text
     txt = annotation(hf, 'textbox');
     txt.Position(1) = an.Position(1) + 0.03;
-    txt.Position(2) = an.Position(2) - 0.005;
+    txt.Position(2) = an.Position(2);
     txt.Position(3) = 0.3;
     txt.Position(4) = 0.05;
     switch(strs{lv})
@@ -210,6 +215,6 @@ end
 % cptxt.FontSize = FONT_SIZE;
 
 
-print(hf, '-r300', '-dpng', 'exampleFigs/pngs/dlbint_sets.png');
+print(hf, '-r300', '-dpng', '../exampleFigs/pngs/dlbint_sets.png');
 
 

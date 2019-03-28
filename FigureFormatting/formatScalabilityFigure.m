@@ -14,15 +14,15 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % load the data
-cmptimes = load('../MatFiles/scalability_comptimes.mat');
+cmptimes = load('../MatFiles/scalability_comptimes_02132019.mat');
 
-methods = {'lag_under', 'lag_over', 'ccc', 'genzps'};
+methods = {'lagunder', 'lagover', 'ccc', 'genzps'};
 
 hf = figure();
 hf.Units = 'points';
 hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
-hf.Position(4) = 1.5;
+hf.Position(4) = 1.15;
 
 markstyle = {'^', 'x', 'o', 's'};
 colors = {[0, 0, 1], [0, 0, 0], [1, 0, 0], [0, 1, 0]};
@@ -58,8 +58,8 @@ ha.YLabel.String = 'Computation Time [s]';
 ha.YLabel.Interpreter = 'latex';
 ha.YLabel.FontSize = FONT_SIZE;
 
-lh = legend('\texttt{lag-under}', '\texttt{lag-over}', ...
-    '\texttt{chance-open}', '\texttt{genzps-open}');
+lh = legend({'\texttt{lag-under}', '\texttt{lag-over}', ...
+    '\texttt{chance-open}', '\texttt{genzps-open}'});
 lh.Interpreter = 'latex';
 lh.Position = [0.6332, 0.2159, 0.3206, 0.3582];
 

@@ -14,44 +14,21 @@ HSCC_COLWIDTH = 241.14749;
 FONT_SIZE = 8;
 
 % Load figures
-figs(2) = openfig('../exampleFigs/CWH_example_ZeroInitVel_traj.fig');
-figs(1) = openfig('../exampleFigs/CWH_example_ZeroInitVel.fig');
-figs(3) = openfig('../exampleFigs/CWH_Ex.fig');
+hf = openfig('../exampleFigs/CWH_2122019-1144.fig');
+ha = gca;
 
-% remove the legend
-delete(figs(1).Children(1));
-
-% get axes
-axs(2) = figs(2).Children(1);
-axs(1) = figs(1).Children(1);
-
-% delete / copy stuff from one figure to the other
-delete(axs(1).Children(1:2));
-delete(axs(2).Children(length(axs(2).Children)));
-delete(axs(2).Children(length(axs(2).Children)));
-delete(axs(2).Children(length(axs(2).Children)));
-
-copyobj(axs(2).Children, axs(1));
-copyobj(figs(3).Children(2).Children(8), axs(1));
-delete(figs(2));
-delete(figs(3));
-
-hf = figs(1);
-ha = axs(1);
-
-clearvars figs axs;
+delete(legend());
 
 % undock the figures
 hf.WindowStyle = 'normal';
 
-% need to pause to let MATLAB catch up to the undocking
-pause(2);
+
 
 % reposition figures
 hf.Units = 'points';
 hf.Position(3) = HSCC_COLWIDTH;
 hf.Units = 'inches';
-hf.Position(4) = 3.2;
+hf.Position(4) = 2.5;
 hf.Position(1) = 3;
 hf.Position(2) = 3;
 
@@ -71,12 +48,13 @@ ha.Units = 'normalized';
 ha.Position(2) = 0.34;
 ha.YLim = [-1.5, 0.1];
 ha.XLim = [-1.5, 1.5];
+ha.Position = [0.2084, 0.3833, 0.6065, 0.5708];
 
 ha.Children(1).DisplayName = 'Lagrangian';
 uistack(ha.Children(1), 'down', 9);
 
-delete(ha.Children(1));
-delete(ha.Children(7));
+% delete(ha.Children(1));
+% delete(ha.Children(7));
 
 
 for lv = 1:length(ha.Children)
@@ -86,40 +64,56 @@ for lv = 1:length(ha.Children)
     elseif strcmp(ha.Children(lv).Type, 'line')
         ha.Children(lv).MarkerSize = 3;
         ha.Children(lv).LineWidth = 1;
-        ha.Children(lv).Color = [0, 0.8, 0];
+        if strcmp(ha.Children(lv).Marker, '^')
+            ha.Children(lv).Color = [0, 0.8, 0];
+        else
+            ha.Children(lv).Color = [1, 0, 0];
+        end
         ha.Children(lv).MarkerFaceColor = [0, 1, 0];
         ha.Children(lv).MarkerEdgeColor = [0, 1, 0];
     end
     
-    switch(lower(ha.Children(lv).DisplayName))
-        case 'lagrangian'
-            ha.Children(lv).FaceColor = [0, 0.9, 0];
-            ha.Children(lv).FaceAlpha = 1;
-        case 'fourier transform'
-            ha.Children(lv).FaceColor = [0, 0.6, 1];
-        case 'target set'
-            ha.Children(lv).FaceColor = [0, 0, 0];
-        case 'safe set'
-            ha.Children(lv).FaceColor = [0.95, 0.95, 0];
+    if regexp(ha.Children(lv).DisplayName, 'lag-under')
+        ha.Children(lv).FaceColor = [0, 0.9, 0];
+        ha.Children(lv).FaceAlpha = 1;
+    elseif regexp(ha.Children(lv).DisplayName, 'genzps-open')
+        ha.Children(lv).FaceColor = [0, 0.6, 1];
+    elseif regexp(ha.Children(lv).DisplayName, 'chance-open')
+        ha.Children(lv).FaceColor = [1, 0.6, 0];
+    elseif regexp(ha.Children(lv).DisplayName, 'Safe Set')
+        ha.Children(lv).FaceColor = [0.95, 0.95, 0];
 
-            ha.Children(lv).Vertices = [1.5, -1.5, 0; ...
-                0, -0, 0; ...
-               -1.5, -1.5, 0];
-        case 'chance constraint'
-            ha.Children(lv).FaceColor = [1, 0.6, 0];
-        case 'bad trajectory'
-            ha.Children(lv).Color = [1, 0, 0];
-            ha.Children(lv).LineStyle = '-';
-            ha.Children(lv).LineWidth = 1.5;
-            ha.Children(lv).Marker = 'x';
-            ha.Children(lv).MarkerSize = 7;
-            ha.Children(lv).MarkerFaceColor = [1, 0, 0];
-            ha.Children(lv).MarkerEdgeColor = [1, 0, 0];
-        otherwise
-            % do nothing
+        ha.Children(lv).Vertices = [1.5, -1.5, 0; ...
+            0, -0, 0; ...
+           -1.5, -1.5, 0];
+    elseif regexp(ha.Children(lv).DisplayName, 'Target Set')
+        ha.Children(lv).FaceColor = [0, 0, 0];
     end
+
+
+
+    % switch(lower(ha.Children(lv).DisplayName))
+    %     case 'lagrangian'
+    %     case 'fourier transform'
+    %     case 'target set'
+    %     case 'safe set'
+    %     case 'chance constraint'
+    %     case 'bad trajectory'
+    %         ha.Children(lv).Color = [1, 0, 0];
+    %         ha.Children(lv).LineStyle = '-';
+    %         ha.Children(lv).LineWidth = 1.5;
+    %         ha.Children(lv).Marker = 'x';
+    %         ha.Children(lv).MarkerSize = 7;
+    %         ha.Children(lv).MarkerFaceColor = [1, 0, 0];
+    %         ha.Children(lv).MarkerEdgeColor = [1, 0, 0];
+    %     otherwise
+    %         % do nothing
+    % end
 end
 
+hold on;
+plot([-1.5, 1.5], [-1.5, -1.5], '-k', 'LineWidth', 1.5);
+hold off;
 
 % annotations galore!!!
 % Safe set
@@ -136,7 +130,7 @@ end
 % an.LineStyle = 'none';
 % pos = an.Position;
 
-delete(ha.Children(10));
+% delete(ha.Children(10));
 
 an = annotation(hf, 'rectangle');
 an.Position(1) = 0.1;
